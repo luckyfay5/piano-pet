@@ -1,0 +1,1038 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>钢琴宠物图鉴</title>
+  
+  <!-- 引入 Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- 配置 ES Modules 依赖项 (核心：将现代模块暴露给浏览器) -->
+  <script type="importmap">
+    {
+      "imports": {
+        "react": "https://esm.sh/react@18.2.0",
+        "react-dom/client": "https://esm.sh/react-dom@18.2.0/client",
+        "lucide-react": "https://esm.sh/lucide-react@0.344.0",
+        "firebase/app": "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js",
+        "firebase/auth": "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js",
+        "firebase/firestore": "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js"
+      }
+    }
+  </script>
+  
+  <!-- 引入浏览器端 Babel 编译器 -->
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+</head>
+<body class="bg-slate-50 touch-pan-y selection:bg-indigo-100">
+  <div id="root"></div>
+
+  <!-- 主业务逻辑 (声明为 module 并由 babel 编译) -->
+  <script type="text/babel" data-type="module">
+    import React, { useState, useEffect, useRef, useCallback } from 'react';
+    import { createRoot } from 'react-dom/client';
+    import { Play, Square, Camera, CameraOff, Check, X, Award, Plus, Swords, ArrowLeft, Settings, Trophy, BookOpen, Lock, Sparkles, ScanText, Activity, Music, Loader2 } from 'lucide-react';
+    import { initializeApp } from 'firebase/app';
+    import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from 'firebase/auth';
+    import { getFirestore, collection, doc, onSnapshot, setDoc, updateDoc, serverTimestamp } from 'firebase/firestore';
+
+    // ==========================================
+    // 核心配置区 (在 GitHub 上线前必须修改此处)
+    // ==========================================
+
+    // 1. Firebase 配置
+    // 如果存在全局变量(平台环境)则优先使用，否则使用你填写的配置
+    const firebaseConfigStr = typeof window.__firebase_config !== 'undefined' ? window.__firebase_config : null;
+    const firebaseConfig = firebaseConfigStr ? JSON.parse(firebaseConfigStr) : {
+      apiKey: "AIzaSyD9Gl4xEaXSKuseOe_-_1PO8LoRLUhgrSQ",
+      authDomain: "piano-705a0.firebaseapp.com",
+      projectId: "piano-705a0",
+      storageBucket: "piano-705a0.firebasestorage.app",
+      messagingSenderId: "1046701211994",
+      appId: "1:1046701211994:web:01ce8c7b4a089a97b83363"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    const appId = typeof window.__app_id !== 'undefined' ? window.__app_id : 'default-app-id';
+
+    // 2. Gemini AI 配置
+    const geminiApiKey = "AIzaSyCR5XlLUtdIGLiT5KKGrEkVDxhHsm7YNtI"; // <--- 请在这里填入你的 Gemini API KEY
+
+    // ==========================================
+    // 节拍器引擎 (使用 AudioContext 确保精准)
+    // ==========================================
+    const useMetronome = () => {
+      const [bpm, setBpm] = useState(120);
+      const [isPlaying, setIsPlaying] = useState(false);
+      const audioCtxRef = useRef(null);
+      const intervalRef = useRef(null);
+      const nextNoteTimeRef = useRef(0);
+
+      const playClick = useCallback((time) => {
+        if (!audioCtxRef.current) return;
+        const osc = audioCtxRef.current.createOscillator();
+        const gainNode = audioCtxRef.current.createGain();
+        
+        osc.connect(gainNode);
+        gainNode.connect(audioCtxRef.current.destination);
+        
+        osc.frequency.value = 800;
+        osc.type = 'sine';
+        
+        gainNode.gain.setValueAtTime(1, time);
+        gainNode.gain.exponentialRampToValueAtTime(0.001, time + 0.1);
+        
+        osc.start(time);
+        osc.stop(time + 0.1);
+      }, []);
+
+      const scheduler = useCallback(() => {
+        while (nextNoteTimeRef.current < audioCtxRef.current.currentTime + 0.1) {
+          playClick(nextNoteTimeRef.current);
+          nextNoteTimeRef.current += 60.0 / bpm;
+        }
+      }, [bpm, playClick]);
+
+      useEffect(() => {
+        if (isPlaying) {
+          if (!audioCtxRef.current) {
+            audioCtxRef.current = new (window.AudioContext || window.webkitAudioContext)();
+          }
+          if (audioCtxRef.current.state === 'suspended') {
+            audioCtxRef.current.resume();
+          }
+          nextNoteTimeRef.current = audioCtxRef.current.currentTime + 0.05;
+          intervalRef.current = setInterval(scheduler, 25);
+        } else {
+          clearInterval(intervalRef.current);
+        }
+        return () => clearInterval(intervalRef.current);
+      }, [isPlaying, scheduler]);
+
+      return { bpm, setBpm, isPlaying, setIsPlaying };
+    };
+
+    // ==========================================
+    // 宠物与进化设定字典
+    // ==========================================
+    const LEVEL_THRESHOLDS = [0, 200, 500, 1000, 2000];
+
+    const EGG_TYPES = {
+      classical: { id: 'classical', emoji: '🥚', name: '古典音乐蛋', color: 'bg-blue-50', icon: '🎼' },
+      rock: { id: 'rock', emoji: '🥚', name: '摇滚音乐蛋', color: 'bg-red-50', icon: '🎸' },
+      jazz: { id: 'jazz', emoji: '🥚', name: '爵士音乐蛋', color: 'bg-amber-50', icon: '🎷' },
+      electronic: { id: 'electronic', emoji: '🥚', name: '电子音乐蛋', color: 'bg-purple-50', icon: '🎛️' },
+      pop: { id: 'pop', emoji: '🥚', name: '流行音乐蛋', color: 'bg-pink-50', icon: '🎤' },
+      folk: { id: 'folk', emoji: '🥚', name: '民谣音乐蛋', color: 'bg-green-50', icon: '🍃' }
+    };
+
+    const INCUBATION_STAGES = [
+      { level: 1, name: '沉睡的蛋', suffix: '' },
+      { level: 2, name: '颤动的蛋', suffix: ' (微光)' },
+      { level: 3, name: '裂缝的蛋', suffix: ' (破壳前夕)' },
+      { level: 4, name: '发光的蛋', suffix: ' (即将觉醒)' }
+    ];
+
+    const FINAL_PETS = {
+      classical: [
+        { id: 'c_common1', rarity: 'common', emoji: '🐭', name: '奏鸣鼠', color: 'bg-blue-100', power: 100 },
+        { id: 'c_common2', rarity: 'common', emoji: '🐰', name: '长笛白兔', color: 'bg-blue-200', power: 120 },
+        { id: 'c_rare', rarity: 'rare', emoji: '🦢', name: '天鹅指挥官', color: 'bg-blue-400', power: 300 },
+        { id: 'c_epic', rarity: 'epic', emoji: '🦄', name: '圣音独角兽', color: 'bg-indigo-600', power: 800, text: 'text-white', aura: 'shadow-[0_0_40px_rgba(79,70,229,0.6)] ring-4 ring-indigo-300' }
+      ],
+      rock: [
+        { id: 'r_common1', rarity: 'common', emoji: '🐹', name: '踩镲仓鼠', color: 'bg-red-100', power: 100 },
+        { id: 'r_common2', rarity: 'common', emoji: '🐶', name: '贝斯小狗', color: 'bg-red-200', power: 120 },
+        { id: 'r_rare', rarity: 'rare', emoji: '🐺', name: '孤狼主音', color: 'bg-red-400', power: 300 },
+        { id: 'r_epic', rarity: 'epic', emoji: '🦁', name: '狂怒摇滚狮', color: 'bg-rose-700', power: 800, text: 'text-white', aura: 'shadow-[0_0_40px_rgba(225,29,72,0.6)] ring-4 ring-rose-400' }
+      ],
+      jazz: [
+        { id: 'j_common1', rarity: 'common', emoji: '🐱', name: '慵懒布偶猫', color: 'bg-amber-100', power: 100 },
+        { id: 'j_common2', rarity: 'common', emoji: '🦝', name: '萨克斯浣熊', color: 'bg-amber-200', power: 120 },
+        { id: 'j_rare', rarity: 'rare', emoji: '🦊', name: '魅影赤狐', color: 'bg-amber-400', power: 300 },
+        { id: 'j_epic', rarity: 'epic', emoji: '🐅', name: '幻夜爵士虎', color: 'bg-orange-600', power: 800, text: 'text-white', aura: 'shadow-[0_0_40px_rgba(234,88,12,0.6)] ring-4 ring-orange-300' }
+      ],
+      electronic: [
+        { id: 'e_common1', rarity: 'common', emoji: '🐸', name: '电音小蛙', color: 'bg-purple-100', power: 100 },
+        { id: 'e_common2', rarity: 'common', emoji: '🐧', name: '极客企鹅', color: 'bg-purple-200', power: 120 },
+        { id: 'e_rare', rarity: 'rare', emoji: '🦉', name: '霓虹猫头鹰', color: 'bg-purple-400', power: 300 },
+        { id: 'e_epic', rarity: 'epic', emoji: '🐉', name: '赛博深渊龙', color: 'bg-purple-700', power: 800, text: 'text-white', aura: 'shadow-[0_0_40px_rgba(126,34,206,0.6)] ring-4 ring-purple-400' }
+      ],
+      pop: [
+        { id: 'p_common1', rarity: 'common', emoji: '🐥', name: '叽喳小黄鸟', color: 'bg-pink-100', power: 100 },
+        { id: 'p_common2', rarity: 'common', emoji: '🐷', name: '和声小香猪', color: 'bg-pink-200', power: 120 },
+        { id: 'p_rare', rarity: 'rare', emoji: '🐬', name: '海豚音姬', color: 'bg-pink-400', power: 300 },
+        { id: 'p_epic', rarity: 'epic', emoji: '🦚', name: '璀璨星神凰', color: 'bg-pink-600', power: 800, text: 'text-white', aura: 'shadow-[0_0_40px_rgba(219,39,119,0.6)] ring-4 ring-pink-300' }
+      ],
+      folk: [
+        { id: 'f_common1', rarity: 'common', emoji: '🦔', name: '民谣小刺猬', color: 'bg-green-100', power: 100 },
+        { id: 'f_common2', rarity: 'common', emoji: '🐿️', name: '弹唱松鼠', color: 'bg-green-200', power: 120 },
+        { id: 'f_rare', rarity: 'rare', emoji: '🦌', name: '迷踪林鹿', color: 'bg-green-400', power: 300 },
+        { id: 'f_epic', rarity: 'epic', emoji: '🐻', name: '森之守护熊', color: 'bg-emerald-700', power: 800, text: 'text-white', aura: 'shadow-[0_0_40px_rgba(4,120,87,0.6)] ring-4 ring-emerald-400' }
+      ]
+    };
+
+    const drawPet = (typeId) => {
+      const roll = Math.random();
+      const pool = FINAL_PETS[typeId];
+      if (roll < 0.1) return pool.find(p => p.rarity === 'epic'); 
+      if (roll < 0.4) return pool.find(p => p.rarity === 'rare'); 
+      const commons = pool.filter(p => p.rarity === 'common');
+      return commons[Math.floor(Math.random() * commons.length)]; 
+    };
+
+    const getAllPetsList = () => {
+      const list = [];
+      Object.values(FINAL_PETS).forEach(pool => pool.forEach(pet => list.push(pet)));
+      return list;
+    };
+
+    const getIncubationState = (typeId, xp) => {
+      const egg = EGG_TYPES[typeId] || EGG_TYPES.classical;
+      let levelIndex = LEVEL_THRESHOLDS.findIndex(t => xp < t);
+      if (levelIndex === -1) levelIndex = LEVEL_THRESHOLDS.length; 
+      const isMaxLevel = levelIndex === LEVEL_THRESHOLDS.length;
+      const stage = INCUBATION_STAGES[Math.min(levelIndex - 1, 3)];
+
+      return {
+        eggType: egg,
+        level: levelIndex,
+        isMaxLevel,
+        name: isMaxLevel ? '神秘光球' : egg.name + stage.suffix,
+        emoji: isMaxLevel ? '✨' : egg.emoji,
+        color: egg.color,
+        currentXp: xp,
+        nextXp: isMaxLevel ? null : LEVEL_THRESHOLDS[levelIndex],
+        prevXp: LEVEL_THRESHOLDS[levelIndex - 1]
+      };
+    };
+
+    function App() {
+      const [user, setUser] = useState(null);
+      const [kids, setKids] = useState([]);
+      const [currentView, setCurrentView] = useState('profiles'); 
+      const [activeKidId, setActiveKidId] = useState(null);
+
+      useEffect(() => {
+        const initAuth = async () => {
+          try {
+            const initialToken = typeof window.__initial_auth_token !== 'undefined' ? window.__initial_auth_token : null;
+            if (initialToken) {
+              await signInWithCustomToken(auth, initialToken);
+            } else {
+              await signInAnonymously(auth);
+            }
+          } catch (err) { console.error("Auth init failed:", err); }
+        };
+        initAuth();
+        const unsubscribe = onAuthStateChanged(auth, setUser);
+        return () => unsubscribe();
+      }, []);
+
+      useEffect(() => {
+        if (!user) return;
+        const kidsRef = collection(db, 'artifacts', appId, 'users', user.uid, 'kids');
+        const unsubscribe = onSnapshot(kidsRef, (snapshot) => {
+          const kidsData = [];
+          snapshot.forEach(doc => kidsData.push({ id: doc.id, ...doc.data() }));
+          kidsData.sort((a, b) => b.createdAt?.toMillis() - a.createdAt?.toMillis() || 0);
+          setKids(kidsData);
+        }, console.error);
+        return () => unsubscribe();
+      }, [user]);
+
+      const handleAddKid = async (name, eggType) => {
+        if (!user || !name.trim()) return;
+        await setDoc(doc(collection(db, 'artifacts', appId, 'users', user.uid, 'kids')), {
+          name: name.trim(),
+          currentEggType: eggType,
+          currentEggXp: 0,
+          collectedPets: [], 
+          comboCount: 0, 
+          createdAt: serverTimestamp()
+        });
+      };
+
+      const activeKid = kids.find(k => k.id === activeKidId);
+
+      if (!user) return <div className="min-h-screen flex items-center justify-center text-slate-500 font-bold text-xl"><Loader2 className="animate-spin mr-2"/> 连接云端音乐厅...</div>;
+
+      return (
+        <div className="w-full h-full">
+          {currentView === 'profiles' && (
+            <ProfileSelect kids={kids} onAddKid={handleAddKid} onSelectKid={(id) => { setActiveKidId(id); setCurrentView('practice'); }} onGoToPK={() => setCurrentView('pk')} />
+          )}
+          {currentView === 'practice' && activeKid && (
+            <PracticeRoom kid={activeKid} userId={user.uid} onBack={() => setCurrentView('profiles')} onGoToDex={() => setCurrentView('dex')} />
+          )}
+          {currentView === 'dex' && activeKid && (
+            <PetDex kid={activeKid} userId={user.uid} onBack={() => setCurrentView('practice')} />
+          )}
+          {currentView === 'pk' && (
+            <PKArena kids={kids} onBack={() => setCurrentView('profiles')} />
+          )}
+        </div>
+      );
+    }
+
+    // ==========================================
+    // 1. 角色选择与创建
+    // ==========================================
+    function ProfileSelect({ kids, onAddKid, onSelectKid, onGoToPK }) {
+      const [newKidName, setNewKidName] = useState('');
+      const [selectedEggType, setSelectedEggType] = useState('classical');
+      const [isAdding, setIsAdding] = useState(false);
+
+      const submitAdd = () => {
+        if (newKidName) {
+          onAddKid(newKidName, selectedEggType);
+          setNewKidName('');
+          setIsAdding(false);
+          setSelectedEggType('classical');
+        }
+      };
+
+      if (isAdding) {
+        return (
+          <div className="max-w-6xl mx-auto p-6 md:p-12">
+            <div className="text-center mb-10">
+              <h1 className="text-4xl font-extrabold text-slate-800 mb-4 tracking-tight">🐣 孵化新宠物</h1>
+              <p className="text-slate-500 text-lg">为新成员建立档案，并选择一颗初始盲盒蛋</p>
+            </div>
+
+            <div className="flex flex-col md:flex-row gap-8">
+              <div className="w-full md:w-1/3 bg-white rounded-[2rem] p-8 shadow-sm border border-slate-100 flex flex-col h-fit">
+                <label className="text-sm font-bold text-slate-500 mb-2 ml-1">小音乐家名字</label>
+                <input 
+                  type="text" 
+                  value={newKidName}
+                  onChange={(e) => setNewKidName(e.target.value)}
+                  placeholder="输入名字"
+                  className="w-full text-lg bg-slate-50 border border-slate-200 rounded-xl px-4 py-4 mb-8 focus:outline-none focus:ring-2 focus:ring-indigo-500 font-bold text-slate-800 text-center"
+                />
+                <div className="flex-1 flex flex-col items-center justify-center mb-8 bg-slate-50 rounded-3xl py-8 transition-colors">
+                  <div className={`w-32 h-32 rounded-full flex items-center justify-center text-6xl mb-4 shadow-inner ${EGG_TYPES[selectedEggType].color}`}>
+                    {EGG_TYPES[selectedEggType].emoji}
+                  </div>
+                  <h3 className="text-xl font-bold text-slate-800">{EGG_TYPES[selectedEggType].name}</h3>
+                  <p className="text-sm text-slate-500 mt-1">属性: {EGG_TYPES[selectedEggType].icon}</p>
+                </div>
+                <div className="flex gap-3 w-full">
+                  <button onClick={() => setIsAdding(false)} className="flex-1 py-4 rounded-xl text-slate-500 hover:bg-slate-100 font-medium transition-colors">取消</button>
+                  <button onClick={submitAdd} disabled={!newKidName.trim()} className="flex-1 py-4 rounded-xl bg-indigo-600 text-white font-bold hover:bg-indigo-700 shadow-md transition-all disabled:opacity-50 disabled:cursor-not-allowed">确认创建</button>
+                </div>
+              </div>
+
+              <div className="w-full md:w-2/3 bg-white rounded-[2rem] p-8 shadow-sm border border-slate-100">
+                <h3 className="text-xl font-bold text-slate-800 mb-6 flex items-center gap-2">
+                  <Sparkles className="text-amber-400" /> 选择初始音乐系别
+                </h3>
+                <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
+                  {Object.keys(EGG_TYPES).map(key => {
+                    const egg = EGG_TYPES[key];
+                    const isSelected = selectedEggType === key;
+                    return (
+                      <button key={key} onClick={() => setSelectedEggType(key)}
+                        className={`flex flex-col items-center justify-center p-6 rounded-3xl transition-all duration-300 border-2 ${
+                          isSelected ? `border-indigo-400 bg-indigo-50/50 scale-[1.02] shadow-md` : 'border-transparent bg-slate-50 hover:bg-slate-100 hover:scale-[1.01]'
+                        }`}
+                      >
+                        <div className={`text-6xl mb-4 transition-transform duration-300 ${isSelected ? 'scale-110 drop-shadow-md' : 'grayscale opacity-70'}`}>{egg.emoji}</div>
+                        <span className={`font-bold text-lg mb-1 ${isSelected ? 'text-indigo-700' : 'text-slate-600'}`}>{egg.name}</span>
+                        <span className={`text-sm px-3 py-1 rounded-full ${isSelected ? 'bg-indigo-100 text-indigo-600' : 'bg-slate-200 text-slate-500'}`}>{egg.icon} 系</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+      }
+
+      return (
+        <div className="max-w-6xl mx-auto p-6 md:p-12">
+          <div className="text-center mb-12">
+            <h1 className="text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 to-purple-600 mb-4 tracking-tight pb-2">盲盒音乐宠物</h1>
+            <p className="text-slate-500 text-lg">专注练琴，收集最强传说动物！</p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
+            {kids.map(kid => {
+              const state = getIncubationState(kid.currentEggType, kid.currentEggXp || 0);
+              return (
+                <button key={kid.id} onClick={() => onSelectKid(kid.id)}
+                  className="bg-white rounded-[2rem] p-8 shadow-sm hover:shadow-xl transition-all duration-300 border-2 border-transparent hover:border-indigo-400 flex flex-col items-center text-center transform hover:-translate-y-2 active:scale-95 group"
+                >
+                  <div className={`${state.color} w-40 h-40 rounded-full flex items-center justify-center text-7xl mb-6 shadow-inner transition-transform group-hover:scale-105 ${state.isMaxLevel ? 'animate-pulse ring-4 ring-amber-300' : ''}`}>
+                    {state.emoji}
+                  </div>
+                  <h3 className="text-2xl font-bold text-slate-800 mb-2">{kid.name}</h3>
+                  <p className="text-md font-medium text-indigo-600 mb-3">Lv.{state.level} {state.name}</p>
+                  
+                  {!state.isMaxLevel ? (
+                    <div className="w-full mt-2">
+                      <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden mb-1">
+                        <div className="h-full bg-indigo-400 transition-all duration-500" style={{ width: `${((kid.currentEggXp - state.prevXp) / (state.nextXp - state.prevXp)) * 100}%` }}></div>
+                      </div>
+                      <p className="text-xs text-slate-400">{kid.currentEggXp} / {state.nextXp} XP</p>
+                    </div>
+                  ) : (
+                    <p className="text-sm font-bold text-amber-500 bg-amber-50 px-3 py-1.5 rounded-full border border-amber-200">✨ 满级可孵化！点击进入</p>
+                  )}
+                </button>
+              );
+            })}
+
+            <button onClick={() => setIsAdding(true)} className="bg-slate-50 rounded-[2rem] p-8 border-2 border-dashed border-slate-300 hover:border-indigo-400 hover:bg-indigo-50 transition-all flex flex-col items-center justify-center text-slate-500 min-h-[350px] group active:scale-95">
+              <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center shadow-sm mb-6 group-hover:scale-110 transition-transform group-hover:bg-indigo-100">
+                <Plus className="w-10 h-10 text-slate-400 group-hover:text-indigo-500" />
+              </div>
+              <span className="font-bold text-lg">录入新成员</span>
+            </button>
+          </div>
+
+          {kids.length >= 2 && (
+            <div className="flex justify-center">
+              <button onClick={onGoToPK} className="flex items-center gap-3 bg-slate-900 hover:bg-slate-800 text-white px-10 py-5 rounded-full font-bold text-xl shadow-xl transition-all transform hover:scale-105 active:scale-95">
+                <Swords className="w-6 h-6" /> 进入宠物竞技场
+              </button>
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    // ==========================================
+    // 2. 练琴房间
+    // ==========================================
+    function PracticeRoom({ kid, userId, onBack, onGoToDex }) {
+      const [isPracticing, setIsPracticing] = useState(false);
+      const [sessionTime, setSessionTime] = useState(0);
+      const [showCamera, setShowCamera] = useState(false);
+      const [showPostureCheck, setShowPostureCheck] = useState(false);
+      const [message, setMessage] = useState(`专心看谱，魔法镜已准备就绪。`);
+      const [checkInterval, setCheckInterval] = useState(45); 
+      const [localCombo, setLocalCombo] = useState(kid.comboCount || 0);
+
+      const [showAnalyzer, setShowAnalyzer] = useState(false);
+      const [isAnalyzing, setIsAnalyzing] = useState(false);
+      const [analysisResult, setAnalysisResult] = useState("");
+      const analyzerVideoRef = useRef(null);
+      const analyzerCanvasRef = useRef(null);
+
+      const [sheetMusicData, setSheetMusicData] = useState(null);
+      const fileInputRef = useRef(null);
+
+      const { bpm, setBpm, isPlaying: metronomePlaying, setIsPlaying: setMetronomePlaying } = useMetronome();
+
+      const videoRef = useRef(null);
+      const streamRef = useRef(null);
+      const state = getIncubationState(kid.currentEggType, kid.currentEggXp || 0);
+
+      useEffect(() => {
+        let interval;
+        if (isPracticing && !showPostureCheck && !state.isMaxLevel) {
+          interval = setInterval(() => {
+            setSessionTime(p => {
+              const newTime = p + 1;
+              if (newTime > 0 && newTime % checkInterval === 0) triggerPostureCheck();
+              return newTime;
+            });
+
+            if (sessionTime > 0 && sessionTime % 5 === 0) {
+               updateDoc(doc(db, 'artifacts', appId, 'users', userId, 'kids', kid.id), { currentEggXp: (kid.currentEggXp || 0) + 5 }).catch(console.error);
+            }
+          }, 1000);
+        }
+        return () => clearInterval(interval);
+      }, [isPracticing, showPostureCheck, sessionTime, checkInterval, kid.currentEggXp, kid.id, userId, state.isMaxLevel]);
+
+      useEffect(() => {
+        return () => { if (streamRef.current) streamRef.current.getTracks().forEach(t => t.stop()); };
+      }, []);
+
+      const triggerPostureCheck = () => {
+        setShowPostureCheck(true);
+        setMessage("🛑 突击检查手型！");
+      };
+
+      const startMagicMirror = () => {
+        setShowCamera(true);
+        navigator.mediaDevices.getUserMedia({ video: true }).then(s => {
+          streamRef.current = s;
+          if (videoRef.current) videoRef.current.srcObject = s;
+        }).catch((e) => {
+          console.error(e);
+          setMessage("摄像头权限被拒绝");
+          setShowCamera(false);
+        });
+      };
+
+      const stopMagicMirror = () => {
+        setShowCamera(false);
+        if (streamRef.current) {
+          streamRef.current.getTracks().forEach(t => t.stop());
+          streamRef.current = null;
+        }
+      };
+
+      const togglePractice = () => {
+        if (state.isMaxLevel) return setMessage("当前蛋已满级，请先去图鉴孵化它！");
+        setIsPracticing(!isPracticing);
+        setMessage(!isPracticing ? "练习中... 请保持正确的指法！" : "练习已暂停。");
+      };
+
+      const handlePostureResponse = async (success) => {
+        setShowPostureCheck(false);
+        const kidRef = doc(db, 'artifacts', appId, 'users', userId, 'kids', kid.id);
+        if (success) {
+          const newCombo = localCombo + 1;
+          setLocalCombo(newCombo);
+          const bonus = Math.min(newCombo * 5, 25);
+          await updateDoc(kidRef, { currentEggXp: (kid.currentEggXp || 0) + 30 + bonus, comboCount: newCombo }).catch(console.error);
+          setMessage(`完美手型！连击 ${newCombo} 次！奖励 ${30 + bonus} XP！🔥`);
+        } else {
+          setLocalCombo(0);
+          await updateDoc(kidRef, { comboCount: 0 }).catch(console.error);
+          setMessage("没关系，手掌拱起来，像握着苹果，继续加油。");
+        }
+      };
+
+      const handleFileUpload = (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        if (sheetMusicData) URL.revokeObjectURL(sheetMusicData.url);
+        const url = URL.createObjectURL(file);
+        setSheetMusicData({ url, type: file.type, name: file.name });
+      };
+
+      useEffect(() => {
+        return () => { if (sheetMusicData) URL.revokeObjectURL(sheetMusicData.url); };
+      }, [sheetMusicData]);
+
+      const openAnalyzer = () => {
+        setShowAnalyzer(true);
+        setAnalysisResult("");
+        if (isPracticing) togglePractice();
+        if (metronomePlaying) setMetronomePlaying(false);
+        navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } }).then(s => {
+          if (analyzerVideoRef.current) analyzerVideoRef.current.srcObject = s;
+        }).catch(console.error);
+      };
+
+      const closeAnalyzer = () => {
+        setShowAnalyzer(false);
+        if (analyzerVideoRef.current && analyzerVideoRef.current.srcObject) {
+          analyzerVideoRef.current.srcObject.getTracks().forEach(t => t.stop());
+        }
+      };
+
+      const captureAndAnalyze = async () => {
+        if (!analyzerVideoRef.current || !analyzerCanvasRef.current) return;
+        const video = analyzerVideoRef.current;
+        const canvas = analyzerCanvasRef.current;
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
+        
+        const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
+        const base64Data = dataUrl.split(',')[1];
+        
+        setIsAnalyzing(true);
+        setAnalysisResult("");
+
+        try {
+          const prompt = `你是一个温柔专业的儿童钢琴老师。这可能是一张钢琴谱的照片。
+          请用儿童能听懂的、充满鼓励的语气，帮孩子做“练琴前的乐理预习”：
+          1. 找出谱子上的调号和拍号，简单解释一下。
+          2. 提示2-3个需要特别注意的难点（比如连线、指法跨度、或者临时的升降号）。
+          3. 告诉孩子弹奏这首曲子时应该带着什么情绪。
+          不用太长，分点说明即可。如果照片里没有完整的五线谱，请温和地提醒重新拍摄。`;
+
+          const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${geminiApiKey}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              contents: [{
+                role: "user",
+                parts: [
+                  { text: prompt },
+                  { inlineData: { mimeType: "image/jpeg", data: base64Data } }
+                ]
+              }]
+            })
+          });
+
+          const data = await response.json();
+          if (data.error) throw new Error(data.error.message);
+          
+          const textResult = data.candidates?.[0]?.content?.parts?.[0]?.text || "分析失败，请稍后再试。";
+          setAnalysisResult(textResult);
+
+        } catch (err) {
+          console.error(err);
+          setAnalysisResult(`糟糕，AI导师刚才走神了：${err.message}。请检查是否配置了正确的 Gemini API Key。`);
+        } finally {
+          setIsAnalyzing(false);
+        }
+      };
+
+      const formatTime = (sec) => `${Math.floor(sec / 60).toString().padStart(2, '0')}:${(sec % 60).toString().padStart(2, '0')}`;
+      const progressPercentage = state.isMaxLevel ? 100 : Math.min(100, Math.max(0, (((kid.currentEggXp || 0) - state.prevXp) / (state.nextXp - state.prevXp)) * 100));
+
+      return (
+        <div className="p-4 md:p-8 flex flex-col items-center max-w-6xl mx-auto h-screen flex-col">
+          <input type="file" ref={fileInputRef} onChange={handleFileUpload} accept="image/*,application/pdf" className="hidden" />
+
+          <div className="w-full flex justify-between items-center mb-4 shrink-0 bg-white p-3 rounded-2xl shadow-sm border border-slate-100 overflow-x-auto">
+            <button onClick={onBack} className="flex items-center gap-2 text-slate-600 hover:bg-slate-100 px-4 py-2 rounded-xl font-medium transition-colors shrink-0">
+              <ArrowLeft size={18} /> 返回
+            </button>
+            
+            <div className="flex items-center gap-3 bg-slate-50 p-2 rounded-xl border border-slate-200 shrink-0 mx-2">
+              <Music size={18} className="text-indigo-500 ml-2" />
+              <div className="flex items-center gap-2">
+                <button onClick={() => setBpm(b => Math.max(40, b - 5))} className="w-8 h-8 flex items-center justify-center bg-white rounded-lg shadow-sm font-bold text-slate-600 active:scale-95">-</button>
+                <span className="font-mono font-bold w-12 text-center">{bpm}</span>
+                <button onClick={() => setBpm(b => Math.min(240, b + 5))} className="w-8 h-8 flex items-center justify-center bg-white rounded-lg shadow-sm font-bold text-slate-600 active:scale-95">+</button>
+              </div>
+              <button onClick={() => setMetronomePlaying(!metronomePlaying)} className={`px-4 py-2 rounded-lg font-bold shadow-sm transition-colors ${metronomePlaying ? 'bg-rose-100 text-rose-600' : 'bg-indigo-600 text-white hover:bg-indigo-700'}`}>
+                {metronomePlaying ? '停' : '节拍器'}
+              </button>
+            </div>
+
+            <div className="flex gap-2 items-center shrink-0">
+              <button onClick={() => fileInputRef.current?.click()} className="flex items-center gap-2 bg-slate-800 text-white px-4 py-2.5 rounded-xl shadow-sm font-bold hover:bg-slate-700 transition-colors active:scale-95">
+                <BookOpen size={18} /> 导入本地谱
+              </button>
+              <button onClick={openAnalyzer} className="flex items-center gap-2 bg-gradient-to-r from-teal-400 to-emerald-500 text-white px-4 py-2.5 rounded-xl shadow-sm font-bold hover:shadow-md transition-all active:scale-95 hidden md:flex">
+                <ScanText size={18} /> AI 识谱
+              </button>
+            </div>
+          </div>
+
+          <div className="w-full flex-1 grid grid-cols-1 md:grid-cols-2 gap-6 min-h-0">
+            <div className="flex flex-col gap-4 min-h-0">
+              <div className="bg-white rounded-[2rem] p-6 shadow-sm border border-slate-100 flex items-center justify-between shrink-0">
+                 <div className="flex-1 mr-4">
+                    <p className="text-slate-500 font-bold mb-1">Lv.{state.level} {state.name}</p>
+                    <div className="flex items-center gap-3">
+                      <div className="flex-1 h-3 bg-slate-100 rounded-full overflow-hidden shadow-inner">
+                        <div className="h-full bg-indigo-500 transition-all duration-500" style={{ width: `${progressPercentage}%` }}></div>
+                      </div>
+                      <p className="text-xs font-bold text-indigo-600 whitespace-nowrap bg-indigo-50 px-2 py-1 rounded-md">
+                        {state.isMaxLevel ? '满级' : `${kid.currentEggXp}/${state.nextXp}`}
+                      </p>
+                    </div>
+                 </div>
+                 <div className="text-right shrink-0 border-l border-slate-100 pl-4">
+                    <p className="text-xs text-slate-400 font-bold uppercase tracking-wider mb-1">练习时长</p>
+                    <p className="text-2xl font-mono font-black text-slate-800">{formatTime(sessionTime)}</p>
+                 </div>
+              </div>
+
+              {sheetMusicData ? (
+                <div className="flex-1 bg-white rounded-[2rem] shadow-sm border border-slate-200 overflow-hidden relative flex flex-col min-h-0">
+                  <div className="bg-slate-50 border-b border-slate-200 p-3 flex justify-between items-center shrink-0">
+                    <span className="text-sm font-bold text-slate-700 truncate w-3/4 flex items-center gap-2">
+                      <BookOpen size={16} className="text-indigo-500"/> {sheetMusicData.name}
+                    </span>
+                    <button onClick={() => setSheetMusicData(null)} className="text-slate-400 hover:text-slate-600 bg-slate-200 hover:bg-slate-300 rounded-full p-1 transition-colors">
+                      <X size={16} />
+                    </button>
+                  </div>
+                  <div className="flex-1 overflow-auto bg-slate-100 flex items-start justify-center relative">
+                    <div className="absolute top-4 right-4 bg-white/80 backdrop-blur-sm px-3 py-1.5 rounded-full shadow-sm flex items-center gap-2 border border-slate-200 z-10 pointer-events-none">
+                      <span className="text-xl animate-pulse">{state.emoji}</span>
+                      <span className="text-xs font-bold text-slate-600">吸收经验中...</span>
+                    </div>
+
+                    {sheetMusicData.type.startsWith('image/') ? (
+                      <img src={sheetMusicData.url} alt="曲谱" className="w-full object-contain" />
+                    ) : (
+                      <iframe src={sheetMusicData.url} className="w-full h-full border-none" title="曲谱PDF" />
+                    )}
+                  </div>
+                </div>
+              ) : (
+                <div className={`${state.color} flex-1 rounded-[2rem] p-8 flex flex-col items-center justify-center shadow-inner relative overflow-hidden transition-colors border border-black/5 min-h-0`}>
+                  {localCombo > 0 && (
+                    <div className="absolute top-4 left-4 bg-orange-100 text-orange-600 px-4 py-2 rounded-full font-black text-sm flex items-center gap-2 border border-orange-200 shadow-sm animate-in slide-in-from-top z-10">
+                      <Sparkles size={16} className="animate-spin" /> {localCombo} 连击！
+                    </div>
+                  )}
+
+                  <div className={`text-[160px] filter drop-shadow-2xl ${state.isMaxLevel ? 'animate-pulse' : 'animate-bounce'}`} style={{ animationDuration: '3s' }}>
+                    {state.emoji}
+                  </div>
+                  
+                  {state.isMaxLevel ? (
+                    <div className="absolute inset-0 bg-white/50 backdrop-blur-sm flex items-center justify-center flex-col p-6 z-20">
+                      <div className="bg-white rounded-3xl shadow-2xl p-8 text-center max-w-sm w-full animate-in zoom-in border border-amber-100">
+                        <p className="text-4xl mb-4">✨</p>
+                        <p className="text-2xl font-black text-amber-600 mb-2">能量已满！</p>
+                        <p className="text-slate-600 mb-8 font-medium">这颗蛋准备好孵化了，去图鉴里开盲盒吧！</p>
+                        <button onClick={onGoToDex} className="bg-gradient-to-r from-amber-400 to-orange-500 text-white w-full py-4 rounded-2xl font-bold text-lg shadow-lg shadow-orange-500/30 active:scale-95 transition-all">
+                          前往孵化室
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="absolute bottom-6 bg-white/60 backdrop-blur-md px-6 py-3 rounded-full text-sm font-bold text-slate-600 shadow-sm border border-white/50 text-center">
+                      点击上方 <strong className="text-slate-800">导入本地谱</strong><br/>
+                      可以一边看谱一边养宠物哦
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+
+            <div className="flex flex-col gap-4 min-h-0">
+              <div className="flex-1 bg-slate-900 rounded-[2rem] overflow-hidden shadow-lg relative flex items-center justify-center group min-h-[300px] border-4 border-slate-800">
+                {showCamera ? (
+                  <video ref={videoRef} autoPlay playsInline muted className="w-full h-full object-cover transform scale-x-[-1]" />
+                ) : (
+                  <div className="text-center p-8">
+                    <div className="w-20 h-20 bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-6 shadow-inner">
+                      <CameraOff className="w-10 h-10 text-slate-500" />
+                    </div>
+                    <h4 className="text-slate-300 font-bold text-xl mb-2">手型魔法镜未开启</h4>
+                    <p className="text-slate-500 text-sm">点击下方开启，练琴时用余光检查手心</p>
+                  </div>
+                )}
+                <button onClick={showCamera ? stopMagicMirror : startMagicMirror} className="absolute bottom-6 right-6 bg-white/20 hover:bg-white/30 backdrop-blur-md px-6 py-3 rounded-full text-white flex items-center gap-2 font-bold transition-colors active:scale-95">
+                  {showCamera ? <><CameraOff size={18}/> 关闭镜像</> : <><Camera size={18}/> 开启镜像</>}
+                </button>
+              </div>
+
+              <div className="bg-white rounded-[2rem] p-6 shadow-sm border border-slate-100 text-center shrink-0">
+                <p className="text-slate-600 mb-5 font-bold h-6">{message}</p>
+                <button
+                  onClick={togglePractice}
+                  disabled={showPostureCheck || state.isMaxLevel}
+                  className={`w-full flex items-center justify-center gap-3 py-6 rounded-2xl text-2xl font-black text-white transition-all transform active:scale-[0.98] ${
+                    showPostureCheck ? 'bg-slate-300' 
+                    : isPracticing ? 'bg-rose-500 shadow-rose-500/30 shadow-xl' 
+                    : state.isMaxLevel ? 'bg-slate-300 cursor-not-allowed'
+                    : 'bg-emerald-500 shadow-emerald-500/30 shadow-xl'
+                  }`}
+                >
+                  {isPracticing ? <><Square className="w-7 h-7 fill-current" /> 暂停练习</> : <><Play className="w-7 h-7 fill-current" /> 专注练琴</>}
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {showPostureCheck && (
+            <div className="fixed inset-0 bg-slate-900/80 backdrop-blur-md flex items-center justify-center p-6 z-50">
+              <div className="bg-white rounded-[2rem] p-10 max-w-lg w-full text-center shadow-2xl animate-in zoom-in-95 duration-200">
+                <h2 className="text-4xl font-black text-slate-800 mb-4">手型检查！</h2>
+                <p className="text-slate-600 mb-10 text-xl font-bold bg-slate-50 py-4 rounded-xl">双手定住！低头看看...<br/>手里像握着苹果吗？</p>
+                <div className="flex gap-4">
+                  <button onClick={() => handlePostureResponse(true)} className="flex-1 bg-emerald-500 text-white py-6 rounded-2xl font-bold text-xl flex flex-col items-center gap-3 active:scale-95 shadow-lg shadow-emerald-500/30">
+                    <Check className="w-10 h-10" /> 完美握住
+                  </button>
+                  <button onClick={() => handlePostureResponse(false)} className="flex-1 bg-slate-100 text-slate-700 py-6 rounded-2xl font-bold text-xl flex flex-col items-center gap-3 active:scale-95 border-2 border-slate-200">
+                    <X className="w-10 h-10" /> 塌下去了
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {showAnalyzer && (
+            <div className="fixed inset-0 bg-slate-900/95 backdrop-blur-xl flex items-center justify-center p-4 md:p-8 z-50 overflow-y-auto">
+              <div className="bg-white rounded-[2rem] w-full max-w-4xl shadow-2xl overflow-hidden flex flex-col max-h-full">
+                <div className="bg-teal-500 p-6 flex justify-between items-center text-white shrink-0">
+                  <div>
+                    <h2 className="text-2xl font-black flex items-center gap-2"><ScanText /> AI 乐理预习导师</h2>
+                    <p className="text-teal-100 text-sm mt-1">在练新曲子前，拍下乐谱，让AI帮你梳理难点。</p>
+                  </div>
+                  <button onClick={closeAnalyzer} className="bg-teal-600 hover:bg-teal-700 p-2 rounded-full transition-colors"><X size={24} /></button>
+                </div>
+                
+                <div className="p-6 flex flex-col md:flex-row gap-6 flex-1 overflow-y-auto">
+                  <div className="flex-1 flex flex-col gap-4">
+                    <div className="bg-slate-900 rounded-2xl overflow-hidden aspect-[4/3] relative shadow-inner">
+                      <video ref={analyzerVideoRef} autoPlay playsInline muted className="w-full h-full object-cover" />
+                      <div className="absolute inset-0 border-2 border-teal-500/50 m-8 rounded-lg pointer-events-none">
+                         <div className="absolute top-0 left-0 w-8 h-8 border-t-4 border-l-4 border-teal-400 rounded-tl-lg"></div>
+                         <div className="absolute top-0 right-0 w-8 h-8 border-t-4 border-r-4 border-teal-400 rounded-tr-lg"></div>
+                         <div className="absolute bottom-0 left-0 w-8 h-8 border-b-4 border-l-4 border-teal-400 rounded-bl-lg"></div>
+                         <div className="absolute bottom-0 right-0 w-8 h-8 border-b-4 border-r-4 border-teal-400 rounded-br-lg"></div>
+                      </div>
+                      <canvas ref={analyzerCanvasRef} className="hidden" />
+                    </div>
+                    <button onClick={captureAndAnalyze} disabled={isAnalyzing} className="bg-teal-500 text-white w-full py-4 rounded-xl font-bold text-lg hover:bg-teal-600 disabled:bg-slate-300 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-md">
+                      {isAnalyzing ? <><Loader2 className="animate-spin" /> AI正在思考中...</> : <><Camera /> 拍摄并分析</>}
+                    </button>
+                  </div>
+
+                  <div className="flex-1 bg-slate-50 rounded-2xl p-6 border border-slate-100 flex flex-col">
+                    <h3 className="font-black text-slate-800 mb-4 flex items-center gap-2"><Activity className="text-teal-500"/> 分析结果</h3>
+                    <div className="flex-1 overflow-y-auto bg-white p-5 rounded-xl border border-slate-200 shadow-inner text-slate-700 leading-relaxed whitespace-pre-wrap font-medium">
+                      {analysisResult ? analysisResult : (
+                        <div className="h-full flex flex-col items-center justify-center text-slate-400 gap-3">
+                          <ScanText size={48} className="opacity-50" />
+                          <p>请将五线谱置于镜头中心，确保光线充足，然后点击拍照。</p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    // ==========================================
+    // 3. 图鉴与孵化盲盒
+    // ==========================================
+    function PetDex({ kid, userId, onBack }) {
+      const [hatching, setHatching] = useState(false);
+      const [newPetResult, setNewPetResult] = useState(null);
+      
+      const state = getIncubationState(kid.currentEggType, kid.currentEggXp || 0);
+      const collected = kid.collectedPets || []; 
+
+      const handleHatch = async () => {
+        if (!state.isMaxLevel || hatching) return;
+        setHatching(true);
+        
+        setTimeout(async () => {
+          const drawnPet = drawPet(kid.currentEggType);
+          setNewPetResult(drawnPet);
+          setHatching(false);
+
+          const newCollected = [...collected];
+          const existing = newCollected.find(p => p.id === drawnPet.id);
+          if (existing) existing.count += 1;
+          else newCollected.push({ id: drawnPet.id, count: 1 });
+
+          await updateDoc(doc(db, 'artifacts', appId, 'users', userId, 'kids', kid.id), {
+            collectedPets: newCollected,
+            currentEggXp: 0,
+            comboCount: 0 
+          });
+        }, 2000);
+      };
+
+      const selectNewEgg = async (typeId) => {
+        await updateDoc(doc(db, 'artifacts', appId, 'users', userId, 'kids', kid.id), { currentEggType: typeId });
+        setNewPetResult(null); 
+      };
+
+      const allPetsList = getAllPetsList();
+      const collectedIds = collected.map(c => c.id);
+
+      return (
+        <div className="max-w-6xl mx-auto p-6 md:p-10">
+          <div className="flex justify-between items-center mb-8">
+            <button onClick={onBack} className="flex items-center gap-2 text-slate-600 bg-white px-5 py-3 rounded-full shadow-sm active:scale-95 font-medium border border-slate-100">
+              <ArrowLeft size={20} /> 返回练琴室
+            </button>
+            <h2 className="text-3xl font-black text-slate-800 flex items-center gap-3">
+              <BookOpen className="text-indigo-500" /> 收集图鉴 ({collectedIds.length}/{allPetsList.length})
+            </h2>
+          </div>
+
+          {state.isMaxLevel && !newPetResult && (
+            <div className="bg-gradient-to-br from-amber-100 to-orange-100 border-4 border-amber-300 rounded-[2rem] p-8 mb-12 text-center shadow-lg relative overflow-hidden">
+              {hatching ? (
+                <div className="py-10">
+                  <div className="text-[120px] animate-bounce filter drop-shadow-xl mb-6">✨</div>
+                  <h3 className="text-3xl font-black text-amber-800 animate-pulse">正在破壳中...</h3>
+                </div>
+              ) : (
+                <div className="py-6">
+                   <h3 className="text-3xl font-black text-amber-800 mb-4">你的 {state.name} 可以孵化了！</h3>
+                   <p className="text-amber-700 mb-8 font-medium">手型连击越高，越容易出极品哦 (当前连击: {kid.comboCount || 0})</p>
+                   <button onClick={handleHatch} className="bg-amber-500 hover:bg-amber-600 text-white px-12 py-5 rounded-full font-black text-2xl shadow-xl active:scale-95 transition-all transform hover:scale-105 border-b-4 border-amber-700">
+                     点击开盲盒！
+                   </button>
+                </div>
+              )}
+            </div>
+          )}
+
+          {newPetResult && (
+            <div className="fixed inset-0 bg-slate-900/95 backdrop-blur-md flex items-center justify-center p-6 z-50 overflow-y-auto">
+              <div className={`rounded-[2rem] p-10 max-w-xl w-full text-center shadow-2xl animate-in zoom-in duration-500 ${newPetResult.color} border-4 border-white/50`}>
+                <p className="text-sm font-bold tracking-widest uppercase mb-2 opacity-80 text-slate-800">
+                  {newPetResult.rarity === 'epic' ? '🌟 传说级 🌟' : newPetResult.rarity === 'rare' ? '✨ 稀有级 ✨' : '普通级'}
+                </p>
+                <h2 className={`text-4xl font-black mb-8 ${newPetResult.text || 'text-slate-800'}`}>{newPetResult.name}</h2>
+                
+                <div className={`mx-auto w-48 h-48 rounded-full flex items-center justify-center text-[100px] bg-white/30 shadow-inner mb-8 ${newPetResult.aura || ''}`}>
+                  <div className="animate-bounce" style={{animationDuration: '2s'}}>{newPetResult.emoji}</div>
+                </div>
+
+                <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-4 mb-8 shadow-sm">
+                   <p className="text-sm text-slate-700 font-bold uppercase tracking-widest">战斗力 (Power)</p>
+                   <p className="text-4xl font-black text-slate-900 font-mono mt-1">{newPetResult.power}</p>
+                </div>
+                
+                <p className="text-slate-800 font-bold mb-4 bg-white/40 inline-block px-4 py-1 rounded-full">选择下一颗要培养的蛋</p>
+                <div className="flex flex-wrap gap-4 justify-center">
+                  {Object.keys(EGG_TYPES).map(key => (
+                    <button key={key} onClick={() => selectNewEgg(key)} className="bg-white hover:bg-slate-50 p-4 rounded-2xl shadow-sm active:scale-95 transition-all flex flex-col items-center gap-2 border border-slate-100 hover:border-indigo-300 w-24">
+                       <span className="text-4xl">{EGG_TYPES[key].emoji}</span>
+                       <span className="text-xs font-bold text-slate-600">{EGG_TYPES[key].icon}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+            {allPetsList.map(pet => {
+              const colData = collected.find(c => c.id === pet.id);
+              const isCollected = !!colData;
+              return (
+                <div key={pet.id} className={`rounded-3xl p-4 flex flex-col items-center relative overflow-hidden transition-all ${isCollected ? pet.color + ' shadow-sm' : 'bg-slate-200 opacity-50 grayscale'}`}>
+                  <div className="absolute top-2 left-2 right-2 flex justify-between px-1">
+                     <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${pet.rarity==='epic'?'bg-amber-400 text-white':pet.rarity==='rare'?'bg-blue-400 text-white':'bg-slate-300 text-slate-600'}`}>
+                       {pet.rarity.toUpperCase()}
+                     </span>
+                     {isCollected && colData.count > 1 && (
+                       <span className="text-[10px] font-black bg-white/80 px-2 py-0.5 rounded-full text-slate-700 shadow-sm">x{colData.count}</span>
+                     )}
+                  </div>
+                  <div className="text-5xl mt-8 mb-4 filter drop-shadow-md">
+                    {isCollected ? pet.emoji : '❓'}
+                  </div>
+                  <p className={`text-sm font-bold text-center ${isCollected ? (pet.text || 'text-slate-800') : 'text-slate-500'}`}>
+                    {isCollected ? pet.name : '未知幻兽'}
+                  </p>
+                  {isCollected && <p className="text-[10px] font-mono font-bold mt-2 opacity-70 border-t border-black/10 pt-1 w-full text-center">PWR: {pet.power}</p>}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      );
+    }
+
+    // ==========================================
+    // 4. PK 竞技场
+    // ==========================================
+    function PKArena({ kids, onBack }) {
+      const validKids = kids.filter(k => k.collectedPets && k.collectedPets.length > 0);
+      if (validKids.length < 2) {
+         return <div className="min-h-screen flex items-center justify-center"><div className="bg-white p-10 rounded-3xl text-center shadow-lg max-w-md"><Trophy size={48} className="mx-auto text-amber-300 mb-4"/><p className="text-xl font-bold text-slate-700 mb-6">需要至少两个孩子成功孵化过宠物才能开启竞技场哦！</p><button onClick={onBack} className="bg-indigo-600 text-white px-8 py-3 rounded-full font-bold shadow-md hover:bg-indigo-700">返回练琴室</button></div></div>;
+      }
+      
+      const [fighter1, setFighter1] = useState(validKids[0]);
+      const [fighter2, setFighter2] = useState(validKids[1]);
+      const [battleState, setBattleState] = useState('idle');
+      const [winner, setWinner] = useState(null);
+
+      const calculateTotalPower = (kid) => {
+        if (!kid.collectedPets) return 0;
+        return kid.collectedPets.reduce((total, col) => {
+          let petDef = null;
+          Object.values(FINAL_PETS).forEach(pool => { const f = pool.find(p => p.id === col.id); if (f) petDef = f; });
+          return total + (petDef ? petDef.power * col.count : 0);
+        }, 0);
+      };
+
+      const startBattle = () => {
+        if (fighter1.id === fighter2.id) return alert("不能自己打自己！");
+        setBattleState('fighting');
+        setTimeout(() => {
+          const p1 = calculateTotalPower(fighter1);
+          const p2 = calculateTotalPower(fighter2);
+          const score1 = p1 * (1 + (Math.random() * 0.05));
+          const score2 = p2 * (1 + (Math.random() * 0.05));
+          setWinner(score1 > score2 ? fighter1 : score2 > score1 ? fighter2 : null);
+          setBattleState('result');
+        }, 2500);
+      };
+
+      const renderFighterCard = (kid, setKidFunc) => {
+        const power = calculateTotalPower(kid);
+        let bestPet = null;
+        if (kid.collectedPets && kid.collectedPets.length > 0) {
+           const allHisPets = kid.collectedPets.map(c => {
+             let def = null;
+             Object.values(FINAL_PETS).forEach(pool => { const f = pool.find(p=>p.id===c.id); if(f) def=f; });
+             return def;
+           }).filter(Boolean);
+           allHisPets.sort((a,b) => b.power - a.power);
+           bestPet = allHisPets[0];
+        }
+
+        return (
+          <div className="flex-1 bg-white p-8 rounded-[2rem] text-center shadow-lg border border-slate-100">
+             <select className="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl mb-8 font-black text-xl text-slate-800 focus:ring-2 focus:ring-indigo-500 text-center" value={kid.id} onChange={(e) => setKidFunc(validKids.find(k=>k.id===e.target.value))}>
+               {validKids.map(k => <option key={k.id} value={k.id}>{k.name}</option>)}
+             </select>
+             <div className={`mx-auto w-48 h-48 rounded-full flex items-center justify-center text-[80px] shadow-inner mb-6 transition-all duration-500 ${bestPet ? bestPet.color : 'bg-slate-100'} ${bestPet?.aura || ''}`}>
+               {bestPet ? bestPet.emoji : '❓'}
+             </div>
+             <p className="text-sm font-bold text-slate-500 mb-1 uppercase tracking-widest">王牌护驾: {bestPet ? bestPet.name : '无'}</p>
+             <div className="bg-slate-900 text-white rounded-2xl py-4 mt-6 shadow-md border-b-4 border-slate-950">
+               <p className="text-xs font-bold opacity-70 uppercase tracking-widest mb-1">阵容总战力</p>
+               <p className="text-4xl font-black font-mono">{power}</p>
+             </div>
+          </div>
+        );
+      };
+
+      return (
+        <div className="max-w-5xl mx-auto p-6 md:p-12">
+          <button onClick={onBack} className="flex items-center gap-2 text-slate-500 bg-white px-5 py-3 rounded-full shadow-sm mb-8 font-medium border border-slate-100">
+            <ArrowLeft size={20} /> 返回大厅
+          </button>
+          <div className="text-center mb-12">
+            <h1 className="text-5xl font-black text-slate-800 tracking-tight flex items-center justify-center gap-4">
+              <Swords className="text-rose-500 w-12 h-12" /> 巅峰战力对决
+            </h1>
+            <p className="text-slate-500 mt-4 text-lg font-medium">看谁收集的传说幻兽更多，谁的音乐能量更强！</p>
+          </div>
+
+          <div className="flex flex-col md:flex-row gap-8 items-center justify-center mb-12 relative">
+            {renderFighterCard(fighter1, setFighter1)}
+            <div className="z-10 bg-gradient-to-br from-rose-500 to-red-600 text-white w-24 h-24 rounded-full flex items-center justify-center font-black text-4xl shadow-xl shadow-rose-500/40 transform md:-mx-8 border-4 border-white">
+              VS
+            </div>
+            {renderFighterCard(fighter2, setFighter2)}
+          </div>
+
+          <div className="text-center min-h-[150px]">
+            {battleState === 'idle' && (
+              <button onClick={startBattle} className="bg-slate-900 hover:bg-slate-800 text-white px-16 py-6 rounded-full font-black text-3xl shadow-2xl transition-all transform hover:scale-105 active:scale-95 border-b-4 border-slate-950">
+                👊 开启战斗
+              </button>
+            )}
+            {battleState === 'fighting' && (
+              <div className="flex flex-col items-center">
+                 <Swords className="w-20 h-20 text-rose-500 animate-spin mb-6" />
+                 <div className="text-4xl font-black text-slate-700 animate-pulse tracking-widest">能量对撞中...</div>
+              </div>
+            )}
+            {battleState === 'result' && (
+              <div className="animate-in fade-in slide-in-from-bottom-8 duration-500">
+                <h3 className="text-6xl font-black text-amber-500 mb-8 drop-shadow-md">
+                  🏆 胜者：{winner?.name || '平局'}
+                </h3>
+                <button onClick={() => setBattleState('idle')} className="text-slate-500 underline font-bold text-xl hover:text-slate-800 transition-colors">再战一局</button>
+              </div>
+            )}
+          </div>
+        </div>
+      );
+    }
+
+    const root = createRoot(document.getElementById('root'));
+    root.render(<App />);
+  </script>
+</body>
+</html>
