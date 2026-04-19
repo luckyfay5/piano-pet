@@ -212,6 +212,7 @@
 
     function App() {
       const [user, setUser] = useState(null);
+      const [authError, setAuthError] = useState(null);
       const [kids, setKids] = useState([]);
       const [currentView, setCurrentView] = useState('profiles'); 
       const [activeKidId, setActiveKidId] = useState(null);
@@ -225,7 +226,10 @@
             } else {
               await signInAnonymously(auth);
             }
-          } catch (err) { console.error("Auth init failed:", err); }
+          } catch (err) { 
+            console.error("Auth init failed:", err); 
+            setAuthError(err.message);
+          }
         };
         initAuth();
         const unsubscribe = onAuthStateChanged(auth, setUser);
@@ -257,6 +261,25 @@
       };
 
       const activeKid = kids.find(k => k.id === activeKidId);
+
+      if (authError) {
+        return (
+          <div className="min-h-screen flex items-center justify-center p-6 bg-slate-50">
+            <div className="bg-white p-8 rounded-[2rem] shadow-xl border border-red-100 max-w-md text-center">
+              <div className="w-16 h-16 bg-red-100 text-red-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                <X size={32} />
+              </div>
+              <h2 className="text-2xl font-black text-slate-800 mb-2">云端连接被拒绝</h2>
+              <p className="text-red-500 font-mono text-sm mb-6 bg-red-50 p-3 rounded-lg break-words text-left">{authError}</p>
+              <div className="text-left text-sm text-slate-600 space-y-3 bg-slate-50 p-4 rounded-xl">
+                <p className="font-bold text-slate-800">常见排查指南：</p>
+                <p>1. 如果在 Vercel 运行，请前往 Firebase 控制台 <b>Authentication -> Settings -> Authorized domains</b>，添加你的 Vercel 网址。</p>
+                <p>2. 确认你是否在 Authentication 的 Sign-in method 中启用了 <b>匿名 (Anonymous)</b> 登录。</p>
+              </div>
+            </div>
+          </div>
+        );
+      }
 
       if (!user) return <div className="min-h-screen flex items-center justify-center text-slate-500 font-bold text-xl"><Loader2 className="animate-spin mr-2"/> 连接云端音乐厅...</div>;
 
