@@ -910,20 +910,14 @@ function resetAll(){
 }
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-//  AI 识谱 (Gemini Vision)
-//  Key 通过平台环境变量注入 window.__gemini_key
+//  AI 识谱 (Gemini Vision — 通过 /api/analyze 代理)
+//  Key 存在 Vercel 环境变量中，前端不持有任何密钥
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-const GEMINI_KEY = typeof window.__gemini_key !== 'undefined' ? window.__gemini_key : '';
-
 let analyzerState = 'idle'; // idle | capturing | analyzing | done | error
 let analyzerResult = '';
 let analyzerStream = null;
 
 function openAnalyzer(){
-  if(!GEMINI_KEY){
-    alert('AI 识谱功能未配置，请联系管理员设置 GEMINI_KEY 环境变量。');
-    return;
-  }
   analyzerState = 'capturing';
   analyzerResult = '';
   refreshPractice();
@@ -954,23 +948,22 @@ async function captureAndAnalyze(){
   analyzerState = 'analyzing'; refreshPractice();
 
   try {
-    const resp = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_KEY}`,
-      { method:'POST', headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({ contents:[{ parts:[
-          { text:`你是一个耐心温柔的儿童钢琴老师。请分析这张钢琴乐谱的照片，用10岁孩子能懂的语言，分点说明：
+    const resp = await fetch('/api/analyze', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ contents:[{ parts:[
+        { text:`你是一个耐心温柔的儿童钢琴老师。请分析这张钢琴乐谱的照片，用10岁孩子能懂的语言，分点说明：
 1. 调号和拍号是什么，用通俗的话解释
 2. 这首曲子的情绪和弹奏感觉
 3. 有哪2-3个需要特别注意的难点（比如跨手、连线、快速音群）
 4. 给孩子一句鼓励的话
 
 如果照片里没有清晰的五线谱，请温和地说明并请孩子重新拍摄。回答请简洁，不超过150字。` },
-          { inlineData:{ mimeType:'image/jpeg', data:b64 } }
-        ]}]})
-      }
-    );
+        { inlineData:{ mimeType:'image/jpeg', data:b64 } }
+      ]}]}),
+    });
     const data = await resp.json();
-    if(data.error) throw new Error(data.error.message || JSON.stringify(data.error));
+    if(!resp.ok) throw new Error(data.error || `HTTP ${resp.status}`);
     analyzerResult = data.candidates?.[0]?.content?.parts?.[0]?.text || '分析失败，请重试。';
     analyzerState = 'done';
   } catch(e) {
