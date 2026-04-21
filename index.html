@@ -327,7 +327,7 @@ function buildEgg(lv, size, animClass = '') {
 
   const shadowAnim = animClass === 'anim-float' ? 'anim-shadow-pulse' : '';
 
-  return `<div style="display:inline-block; position:relative; cursor:pointer;" onmouseenter="eggInteract(this)" ontouchstart="eggInteract(this)">
+  return `<div style="display:inline-block; position:relative; cursor:pointer;" onmouseenter="window.eggInteract(this)" ontouchstart="window.eggInteract(this)">
     <div class="${animClass}" style="position:relative; z-index:2;">
       <div class="egg-interact-wrapper">
         <div class="pet-egg" style="--egg-size: ${size}px; background: ${bg}; --egg-shadow: ${c[3]};">
@@ -397,7 +397,7 @@ function startMetro(){
   metroOn=true; metroIv=setInterval(metroTick,25);
 }
 function stopMetro(){ clearInterval(metroIv); metroOn=false; metroBeat=0; }
-function toggleMetro(){ metroOn?stopMetro():startMetro(); refreshPractice(); }
+function toggleMetro(){ metroOn?window.stopMetro():window.startMetro(); window.refreshPractice(); }
 function restartMetro(){
   if(!metroOn) return;
   clearInterval(metroIv); const ctx=getCtx(); metroNext=ctx.currentTime+.05; metroBeat=0; metroIv=setInterval(metroTick,25);
@@ -429,22 +429,22 @@ let _gameKey=null;
 function startGame(){
   gameState='playing'; gameScore=0; gameCombo=0; gameMaxCombo=0;
   gameLiveNotes=[]; gameNoteId=0; seqIdx=0;
-  render(); bindGameKeys(); spawnLoop();
+  window.render(); window.bindGameKeys(); window.spawnLoop();
 }
 function endGame(){
-  clearInterval(noteTimer); noteTimer=null; removeGameKeys();
-  const xp=Math.floor(gameScore/10); if(xp>0) addXp(xp);
-  if(gameScore>S.gameHighScore){ S.gameHighScore=gameScore; save(); }
-  gameState='result'; render();
+  clearInterval(noteTimer); noteTimer=null; window.removeGameKeys();
+  const xp=Math.floor(gameScore/10); if(xp>0) window.addXp(xp);
+  if(gameScore>S.gameHighScore){ S.gameHighScore=gameScore; window.save(); }
+  gameState='result'; window.render();
 }
-function selectSong(i){ gameSong=i; render(); }
+function selectSong(i){ gameSong=i; window.render(); }
 
 function spawnLoop(){
   const song=SONGS[gameSong], iv=song.seq?620:880;
   noteTimer=setInterval(()=>{
     if(gameState!=='playing'){ clearInterval(noteTimer); return; }
     const lane=song.seq?song.seq[seqIdx++%song.seq.length]:Math.floor(Math.random()*7);
-    spawnNote(lane); sweepMissed();
+    window.spawnNote(lane); window.sweepMissed();
   },iv);
 }
 function spawnNote(lane){
@@ -467,13 +467,13 @@ function sweepMissed(){
     const r=n.el.getBoundingClientRect();
     if(r.top>bottom+12){
       n.el.remove(); gameCombo=0;
-      showJudgment('MISS','#A8A29E',bottom-100); updateGameHUD(); return false;
+      window.showJudgment('MISS','#A8A29E',bottom-100); window.updateGameHUD(); return false;
     }
     return true;
   });
 }
 function hitLane(lane){
-  playNoteSound(lane); flashKey(lane);
+  window.playNoteSound(lane); window.flashKey(lane);
   const fz=document.getElementById('fall-zone'); if(!fz) return;
   const fzR=fz.getBoundingClientRect();
   const hitTop=fzR.bottom-130, hitBot=fzR.bottom+15;
@@ -491,8 +491,8 @@ function hitLane(lane){
     setTimeout(()=>best.el.remove(),220);
     gameCombo++; if(gameCombo>gameMaxCombo) gameMaxCombo=gameCombo;
     gameScore+=100*Math.min(gameCombo,8);
-    showJudgment(bestDist<22?'PERFECT!':'GREAT', bestDist<22?'#EC4899':'#EAB308', fzR.bottom-120);
-    updateGameHUD();
+    window.showJudgment(bestDist<22?'PERFECT!':'GREAT', bestDist<22?'#EC4899':'#EAB308', fzR.bottom-120);
+    window.updateGameHUD();
   }
 }
 function flashKey(lane){
@@ -509,7 +509,7 @@ function showJudgment(text,color,top){
   el.textContent=text; document.body.appendChild(el); setTimeout(()=>el.remove(),850);
 }
 function bindGameKeys(){
-  _gameKey=e=>{ const i=KEY_LABELS.indexOf(e.key.toUpperCase()); if(i>=0) hitLane(i); };
+  _gameKey=e=>{ const i=KEY_LABELS.indexOf(e.key.toUpperCase()); if(i>=0) window.hitLane(i); };
   window.addEventListener('keydown',_gameKey);
 }
 function removeGameKeys(){ if(_gameKey){ window.removeEventListener('keydown',_gameKey); _gameKey=null; } }
@@ -519,10 +519,10 @@ function removeGameKeys(){ if(_gameKey){ window.removeEventListener('keydown',_g
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 let currentView = AppStore.profiles.length > 0 ? 'profiles' : 'setup';
 function navigate(view){
-  if(currentView==='practice') stopPractice();
-  if(currentView==='game'&&gameState==='playing') endGame();
-  if(currentView==='pk') stopPK();
-  currentView=view; render();
+  if(currentView==='practice') window.stopPractice();
+  if(currentView==='game'&&gameState==='playing') window.endGame();
+  if(currentView==='pk') window.stopPK();
+  currentView=view; window.render();
 }
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -533,47 +533,47 @@ let combo=0, postureTimeout=null, showPosture=false;
 let sheetData=null, sheetName='';
 let camOn=false, camStream=null;
 
-function refreshPractice(){ if(currentView==='practice'){ const el=document.getElementById('view-content'); if(el){ el.innerHTML=buildPractice(); afterPracticeRender(); } } }
+function refreshPractice(){ if(currentView==='practice'){ const el=document.getElementById('view-content'); if(el){ el.innerHTML=window.buildPractice(); window.afterPracticeRender(); } } }
 function startPractice(){
-  isPracticing=true; recordDay(); schedulePosture();
+  isPracticing=true; window.recordDay(); window.schedulePosture();
   practiceTimer=setInterval(()=>{
-    practiceSeconds++; const te=document.getElementById('pt'); if(te) te.textContent=fmtTime(practiceSeconds);
-    if(practiceSeconds%300===0){ S.totalMinutes+=5; addXp(5); }
+    practiceSeconds++; const te=document.getElementById('pt'); if(te) te.textContent=window.fmtTime(practiceSeconds);
+    if(practiceSeconds%300===0){ S.totalMinutes+=5; window.addXp(5); }
   },1000);
-  refreshPractice();
+  window.refreshPractice();
 }
 function stopPractice(){
   if(!isPracticing&&!practiceTimer) return;
   isPracticing=false; clearInterval(practiceTimer); practiceTimer=null; clearTimeout(postureTimeout); showPosture=false;
-  if(metroOn) stopMetro();
-  save(); refreshPractice();
+  if(metroOn) window.stopMetro();
+  window.save(); window.refreshPractice();
 }
-function togglePractice(){ isPracticing?stopPractice():startPractice(); }
+function togglePractice(){ isPracticing?window.stopPractice():window.startPractice(); }
 function schedulePosture(){
   clearTimeout(postureTimeout); if(!isPracticing) return;
   postureTimeout=setTimeout(()=>{
     if(!isPracticing) return;
-    showPosture=true; playChime(); refreshPractice();
-    setTimeout(()=>{ showPosture=false; combo++; addXp(combo*3); schedulePosture(); refreshPractice(); },3500);
+    showPosture=true; window.playChime(); window.refreshPractice();
+    setTimeout(()=>{ showPosture=false; combo++; window.addXp(combo*3); window.schedulePosture(); window.refreshPractice(); },3500);
   }, (S.settings.checkInterval||300)*1000);
 }
-function changeBpm(delta){ S.settings.bpm=Math.max(40,Math.min(220,S.settings.bpm+delta)); save(); restartMetro(); refreshPractice(); }
+function changeBpm(delta){ S.settings.bpm=Math.max(40,Math.min(220,S.settings.bpm+delta)); window.save(); window.restartMetro(); window.refreshPractice(); }
 function fmtTime(s){ return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0'); }
-function loadSheet(e){ const f=e.target.files[0]; if(!f) return; if(sheetData) URL.revokeObjectURL(sheetData.url); sheetData={url:URL.createObjectURL(f),type:f.type}; sheetName=f.name; refreshPractice(); }
-function clearSheet(){ if(sheetData) URL.revokeObjectURL(sheetData.url); sheetData=null; sheetName=''; refreshPractice(); }
+function loadSheet(e){ const f=e.target.files[0]; if(!f) return; if(sheetData) URL.revokeObjectURL(sheetData.url); sheetData={url:URL.createObjectURL(f),type:f.type}; sheetName=f.name; window.refreshPractice(); }
+function clearSheet(){ if(sheetData) URL.revokeObjectURL(sheetData.url); sheetData=null; sheetName=''; window.refreshPractice(); }
 function toggleCamera(){
-  if(camOn){ camOn=false; if(camStream){ camStream.getTracks().forEach(t=>t.stop()); camStream=null; } refreshPractice(); }
-  else { navigator.mediaDevices.getUserMedia({video:{facingMode:'user'}}).then(s=>{ camOn=true; camStream=s; refreshPractice(); setTimeout(()=>{ const v=document.getElementById('cam-video'); if(v) v.srcObject=s; },60); }).catch(()=>alert('无法访问摄像头。')); }
+  if(camOn){ camOn=false; if(camStream){ camStream.getTracks().forEach(t=>t.stop()); camStream=null; } window.refreshPractice(); }
+  else { navigator.mediaDevices.getUserMedia({video:{facingMode:'user'}}).then(s=>{ camOn=true; camStream=s; window.refreshPractice(); setTimeout(()=>{ const v=document.getElementById('cam-video'); if(v) v.srcObject=s; },60); }).catch(()=>alert('无法访问摄像头。')); }
 }
 function afterPracticeRender(){ if(camOn&&camStream){ const v=document.getElementById('cam-video'); if(v) v.srcObject=camStream; } }
 
 function doHatch(){
-  if(!eggMax() || !S) return;
-  const pet=drawPet(S.streak);
+  if(!window.eggMax() || !S) return;
+  const pet=window.drawPet(S.streak);
   S.eggXp=0; combo=0; 
   const ext = S.collectedPets.find(p=>p.id===pet.id);
   if(ext) ext.count = (ext.count||1)+1; else S.collectedPets.push({id:pet.id,count:1,ts:Date.now()});
-  save(); showHatchModal(pet);
+  window.save(); window.showHatchModal(pet);
 }
 function showHatchModal(pet){
   const labels={common:'普通级',rare:'✨ 稀有级',epic:'💫 史诗级',legend:'🌟 传说级！'};
@@ -585,15 +585,15 @@ function showHatchModal(pet){
     <div style="background:rgba(0,0,0,.03);border-radius:14px;padding:14px;margin-bottom:18px;">
       <div style="font-size:10px;color:#B45309;margin-bottom:3px;">战斗力</div><div class="fredoka" style="font-size:34px;color:${pet.color};">${pet.power}</div>
     </div>
-    <button class="btn" onclick="this.closest('.modal-overlay').remove();navigate('home');" style="width:100%;padding:14px;background:linear-gradient(135deg,#EAB308,#EC4899);color:#fff;font-size:15px;font-weight:800;border-radius:14px;">太棒了！🏠</button>
+    <button class="btn" onclick="this.closest('.modal-overlay').remove();window.navigate('home');" style="width:100%;padding:14px;background:linear-gradient(135deg,#EAB308,#EC4899);color:#fff;font-size:15px;font-weight:800;border-radius:14px;">太棒了！🏠</button>
   </div>`;
-  document.body.appendChild(m); playChime();
+  document.body.appendChild(m); window.playChime();
 }
 
 function buildSetup(){
   return `<div style="min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 24px;">
     <div style="text-align:center;margin-bottom:40px;">
-      <div style="margin-bottom:14px;">${buildEgg(0, 88, 'anim-float')}</div>
+      <div style="margin-bottom:14px;">${window.buildEgg(0, 88, 'anim-float')}</div>
       <h1 class="fredoka" style="font-size:42px;background:linear-gradient(135deg,#EAB308,#EC4899);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">练琴星球</h1>
       <p style="color:#B45309;font-size:14px;margin-top:6px;">为新成员录入档案</p>
     </div>
@@ -601,30 +601,30 @@ function buildSetup(){
       <label style="display:block;font-size:11px;font-weight:700;color:#854D0E;letter-spacing:.06em;margin-bottom:8px;">你的名字是？</label>
       <input id="sn" type="text" placeholder="输入名字" maxlength="12" autocomplete="off"
         style="width:100%;background:#FFFFFF;border:1px solid #FDE68A;border-radius:14px;padding:14px 16px;font-size:18px;font-weight:700;color:#854D0E;outline:none;font-family:inherit;text-align:center;"
-        oninput="this.style.borderColor='#EAB308'" onkeydown="if(event.key==='Enter')doSetup()">
-      <button class="btn" onclick="doSetup()" style="width:100%;margin-top:16px;padding:15px;border-radius:14px;background:linear-gradient(135deg,#EAB308,#EC4899);color:#fff;font-size:16px;font-weight:800;">
+        oninput="this.style.borderColor='#EAB308'" onkeydown="if(event.key==='Enter')window.doSetup()">
+      <button class="btn" onclick="window.doSetup()" style="width:100%;margin-top:16px;padding:15px;border-radius:14px;background:linear-gradient(135deg,#EAB308,#EC4899);color:#fff;font-size:16px;font-weight:800;">
         确定录入 🐣
       </button>
-      ${AppStore.profiles.length > 0 ? `<button class="btn" onclick="navigate('profiles')" style="width:100%;margin-top:12px;padding:12px;background:none;border:1px solid #FDE68A;color:#B45309;font-size:13px;border-radius:14px;">返回成员列表</button>` : ''}
+      ${AppStore.profiles.length > 0 ? `<button class="btn" onclick="window.navigate('profiles')" style="width:100%;margin-top:12px;padding:12px;background:none;border:1px solid #FDE68A;color:#B45309;font-size:13px;border-radius:14px;">返回成员列表</button>` : ''}
     </div>
   </div>`;
 }
 function doSetup(){
   const v=document.getElementById('sn').value.trim(); if(!v) return;
-  const p = createProfileData(v);
+  const p = window.createProfileData(v);
   AppStore.profiles.push(p);
-  switchProfile(p.id);
+  window.switchProfile(p.id);
 }
 
 function buildProfiles() {
   let list = AppStore.profiles.map(p => {
     let pLv = 0; for(let i=0;i<XP_LEVELS.length;i++) if(p.eggXp>=XP_LEVELS[i]) pLv=i;
     let icon = EGG_STAGES[pLv].includes('满级') ? '✨' : '🥚';
-    return `<div onclick="switchProfile('${p.id}')" class="glass btn" style="display:flex;align-items:center;padding:16px 20px;gap:16px;width:100%;justify-content:flex-start;margin-bottom:12px;">
+    return `<div onclick="window.switchProfile('${p.id}')" class="glass btn" style="display:flex;align-items:center;padding:16px 20px;gap:16px;width:100%;justify-content:flex-start;margin-bottom:12px;">
       <div style="font-size:32px;background:rgba(255,255,255,0.8);width:56px;height:56px;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(236,72,153,0.15)">${icon}</div>
       <div style="flex:1;text-align:left;">
-        <div style="font-size:18px;font-weight:800;color:#854D0E;">${esc(p.name)}</div>
-        <div style="font-size:11px;color:#A8A29E;margin-top:2px;">Lv.${pLv} · 战力 ${getProfilePower(p)}</div>
+        <div style="font-size:18px;font-weight:800;color:#854D0E;">${window.esc(p.name)}</div>
+        <div style="font-size:11px;color:#A8A29E;margin-top:2px;">Lv.${pLv} · 战力 ${window.getProfilePower(p)}</div>
       </div>
       <div style="color:#EC4899;font-size:24px;">➔</div>
     </div>`;
@@ -634,7 +634,7 @@ function buildProfiles() {
     <h2 class="fredoka" style="font-size:32px;color:#EAB308;margin-bottom:8px;">音乐家族</h2>
     <p style="color:#B45309;font-size:13px;margin-bottom:30px;">请选择进入谁的练琴房间？</p>
     <div style="width:100%;">${list}</div>
-    <button class="btn" onclick="navigate('setup')" style="width:100%;margin-top:12px;padding:16px;background:rgba(0,0,0,.04);border:2px dashed rgba(234,179,8,.3);color:#B45309;font-size:15px;border-radius:18px;">
+    <button class="btn" onclick="window.navigate('setup')" style="width:100%;margin-top:12px;padding:16px;background:rgba(0,0,0,.04);border:2px dashed rgba(234,179,8,.3);color:#B45309;font-size:15px;border-radius:18px;">
       + 录入新成员
     </button>
   </div>`;
@@ -642,22 +642,22 @@ function buildProfiles() {
 function switchProfile(id) {
   AppStore.activeId = id;
   S = AppStore.profiles.find(p => p.id === id);
-  save(); navigate('home');
+  window.save(); window.navigate('home');
 }
 
 function buildHome(){
   if(!S) return '';
-  const lv=eggLevel(), pct=xpPct(), max=eggMax();
+  const lv=window.eggLevel(), pct=window.xpPct(), max=window.eggMax();
   const anim=EGG_ANIMS[lv]||'anim-float';
-  const last=S.collectedPets.length?petById(S.collectedPets[S.collectedPets.length-1].id):null;
+  const last=S.collectedPets.length?window.petById(S.collectedPets[S.collectedPets.length-1].id):null;
   const tip=TIPS[new Date().getDate()%TIPS.length];
   return `<div style="padding:20px 16px;">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
-      <div onclick="navigate('profiles')" style="cursor:pointer; display:flex; align-items:center; gap:8px;">
+      <div onclick="window.navigate('profiles')" style="cursor:pointer; display:flex; align-items:center; gap:8px;">
         <div style="background:rgba(234,179,8,.1); border-radius:10px; width:36px; height:36px; display:flex; align-items:center; justify-content:center; font-size:18px;">👤</div>
         <div>
           <p style="color:#A8A29E;font-size:10px;font-weight:700;">切换档案 ▾</p>
-          <h2 class="fredoka" style="font-size:22px;line-height:1;color:#854D0E;">${esc(S.name)}</h2>
+          <h2 class="fredoka" style="font-size:22px;line-height:1;color:#854D0E;">${window.esc(S.name)}</h2>
         </div>
       </div>
       <div style="background:#FCE7F3;border:1px solid #FBCFE8;border-radius:12px;padding:6px 14px;display:flex;align-items:center;gap:6px;">
@@ -666,22 +666,22 @@ function buildHome(){
     </div>
     <div class="glass anim-glowpulse" style="border-radius:26px;padding:26px;text-align:center;margin-bottom:14px;position:relative;overflow:hidden;">
       <div style="position:absolute;top:-40px;right:-40px;width:130px;height:130px;border-radius:50%;background:radial-gradient(circle,rgba(234,179,8,.1),transparent);pointer-events:none;"></div>
-      <div style="margin-bottom:12px;">${buildEgg(lv, 88, anim)}</div>
+      <div style="margin-bottom:12px;">${window.buildEgg(lv, 88, anim)}</div>
       <div class="fredoka" style="font-size:20px;color:#EAB308;margin-bottom:2px;">${EGG_STAGES[lv]}</div>
       <p style="color:#B45309;font-size:12px;margin-bottom:14px;">Lv.${lv} · ${S.eggXp} XP</p>
       <div style="background:rgba(0,0,0,.05);border-radius:99px;height:8px;overflow:hidden;margin-bottom:5px;">
         <div class="progress-fill" style="width:${pct}%;"></div>
       </div>
       <p style="font-size:11px;color:#A8A29E;">${max?'✨ 满级！去练琴房孵化吧':`还需 ${XP_LEVELS[lv+1]-S.eggXp} XP 升级`}</p>
-      ${max?`<button class="btn" onclick="navigate('practice')" style="margin-top:12px;padding:11px 26px;background:linear-gradient(135deg,#EAB308,#EC4899);color:#fff;font-size:13px;font-weight:800;border-radius:12px;box-shadow:0 4px 12px rgba(236,72,153,.3);">✨ 去孵化！</button>`:''}
+      ${max?`<button class="btn" onclick="window.navigate('practice')" style="margin-top:12px;padding:11px 26px;background:linear-gradient(135deg,#EAB308,#EC4899);color:#fff;font-size:13px;font-weight:800;border-radius:12px;box-shadow:0 4px 12px rgba(236,72,153,.3);">✨ 去孵化！</button>`:''}
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">
-      <div class="glass" style="border-radius:16px;padding:16px;cursor:pointer;" onclick="navigate('practice')">
+      <div class="glass" style="border-radius:16px;padding:16px;cursor:pointer;" onclick="window.navigate('practice')">
         <div style="font-size:28px;margin-bottom:5px;">🎹</div>
         <div style="font-weight:800;font-size:13px;color:#854D0E;">开始练琴</div>
         <div style="font-size:10px;color:#B45309;margin-top:2px;">获得 XP</div>
       </div>
-      <div class="glass" style="border-radius:16px;padding:16px;cursor:pointer;" onclick="navigate('game')">
+      <div class="glass" style="border-radius:16px;padding:16px;cursor:pointer;" onclick="window.navigate('game')">
         <div style="font-size:28px;margin-bottom:5px;">🎮</div>
         <div style="font-weight:800;font-size:13px;color:#854D0E;">音符游戏</div>
         <div style="font-size:10px;color:#B45309;margin-top:2px;">最高 ${S.gameHighScore} 分</div>
@@ -692,10 +692,10 @@ function buildHome(){
       <div style="font-size:40px;flex-shrink:0;">${last.emoji}</div>
       <div style="flex:1;min-width:0;">
         <div style="font-size:9px;font-weight:700;color:#B45309;margin-bottom:2px;">最新收集</div>
-        <div style="font-weight:800;font-size:14px;color:#854D0E;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${last.name}</div>
+        <div style="font-weight:800;font-size:14px;color:#854D0E;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${window.esc(last.name)}</div>
         <span class="rarity-${last.rarity}" style="font-size:9px;font-weight:700;padding:2px 7px;border-radius:99px;display:inline-block;margin-top:3px;">${last.rarity.toUpperCase()}</span>
       </div>
-      <button class="btn" onclick="navigate('dex')" style="padding:7px 12px;background:#FCE7F3;border:1px solid #FBCFE8;color:#DB2777;font-size:11px;border-radius:10px;">图鉴</button>
+      <button class="btn" onclick="window.navigate('dex')" style="padding:7px 12px;background:#FCE7F3;border:1px solid #FBCFE8;color:#DB2777;font-size:11px;border-radius:10px;">图鉴</button>
     </div>`:
     `<div class="glass" style="border-radius:16px;padding:14px;text-align:center;margin-bottom:12px;"><p style="color:#B45309;font-size:12px;">还没有宠物，快去练琴孵化蛋吧！</p></div>`}
     <div style="padding:12px 14px;border-radius:14px;background:#FEF3C7;border:1px solid #FDE68A;">
@@ -706,7 +706,7 @@ function buildHome(){
 }
 
 function buildPractice(){
-  const lv=eggLevel(), max=eggMax(), pct=xpPct(), anim=EGG_ANIMS[lv]||'anim-float';
+  const lv=window.eggLevel(), max=window.eggMax(), pct=window.xpPct(), anim=EGG_ANIMS[lv]||'anim-float';
   return `<div style="padding:16px;">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
       <h2 class="fredoka" style="font-size:22px;color:#EAB308;">🎹 练琴房</h2>
@@ -715,7 +715,7 @@ function buildPractice(){
     <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px;">
       <div class="glass" style="border-radius:14px;padding:11px;text-align:center;">
         <div style="font-size:9px;color:#B45309;font-weight:700;letter-spacing:.04em;margin-bottom:2px;">本次时长</div>
-        <div class="fredoka" style="font-size:22px;color:#854D0E;" id="pt">${fmtTime(practiceSeconds)}</div>
+        <div class="fredoka" style="font-size:22px;color:#854D0E;" id="pt">${window.fmtTime(practiceSeconds)}</div>
       </div>
       <div class="glass" style="border-radius:14px;padding:11px;text-align:center;">
         <div style="font-size:9px;color:#B45309;font-weight:700;letter-spacing:.04em;margin-bottom:2px;">总分钟</div>
@@ -737,10 +737,10 @@ function buildPractice(){
     </div>
     <div class="glass" style="border-radius:16px;padding:11px 14px;margin-bottom:11px;display:flex;align-items:center;gap:8px;">
       <span style="font-size:16px;">🎵</span>
-      <button class="btn" onclick="changeBpm(-5)" style="width:30px;height:30px;background:#FFFFFF;border:1px solid #FDE68A;color:#854D0E;font-size:16px;border-radius:8px;flex-shrink:0;box-shadow:0 2px 4px rgba(0,0,0,.02);">−</button>
+      <button class="btn" onclick="window.changeBpm(-5)" style="width:30px;height:30px;background:#FFFFFF;border:1px solid #FDE68A;color:#854D0E;font-size:16px;border-radius:8px;flex-shrink:0;box-shadow:0 2px 4px rgba(0,0,0,.02);">−</button>
       <div style="flex:1;text-align:center;"><span class="fredoka" style="font-size:20px;color:#854D0E;">${S.settings.bpm}</span><span style="font-size:9px;color:#D97706;margin-left:2px;">BPM</span></div>
-      <button class="btn" onclick="changeBpm(5)" style="width:30px;height:30px;background:#FFFFFF;border:1px solid #FDE68A;color:#854D0E;font-size:16px;border-radius:8px;flex-shrink:0;box-shadow:0 2px 4px rgba(0,0,0,.02);">+</button>
-      <button class="btn" onclick="toggleMetro()" style="padding:7px 11px;font-size:11px;font-weight:700;border-radius:10px;flex-shrink:0;background:${metroOn?'#FEE2E2':'#FEF3C7'};border:1px solid ${metroOn?'#FCA5A5':'#FDE68A'};color:${metroOn?'#EF4444':'#D97706'};">
+      <button class="btn" onclick="window.changeBpm(5)" style="width:30px;height:30px;background:#FFFFFF;border:1px solid #FDE68A;color:#854D0E;font-size:16px;border-radius:8px;flex-shrink:0;box-shadow:0 2px 4px rgba(0,0,0,.02);">+</button>
+      <button class="btn" onclick="window.toggleMetro()" style="padding:7px 11px;font-size:11px;font-weight:700;border-radius:10px;flex-shrink:0;background:${metroOn?'#FEE2E2':'#FEF3C7'};border:1px solid ${metroOn?'#FCA5A5':'#FDE68A'};color:${metroOn?'#EF4444':'#D97706'};">
         ${metroOn?'⏹ 停':'▶ 节拍器'}
       </button>
     </div>
@@ -749,14 +749,14 @@ function buildPractice(){
         <span style="font-weight:700;font-size:12px;color:#854D0E;">📄 曲谱</span>
         <label style="cursor:pointer;padding:5px 11px;border-radius:9px;background:#FEF3C7;border:1px solid #FDE68A;font-size:10px;font-weight:700;color:#D97706;">
           ${sheetData?'换一份':'+ 导入'}
-          <input type="file" accept="image/*,application/pdf" style="display:none;" onchange="loadSheet(event)">
+          <input type="file" accept="image/*,application/pdf" style="display:none;" onchange="window.loadSheet(event)">
         </label>
       </div>
       ${sheetData
         ?`<div style="position:relative;border-radius:13px;overflow:hidden;height:190px;">
             ${sheetData.type.startsWith('image/')?`<img src="${sheetData.url}" style="width:100%;height:100%;object-fit:contain;background:#fff;">`:`<iframe src="${sheetData.url}" style="width:100%;height:100%;border:none;background:#fff;"></iframe>`}
-            <button class="btn" onclick="clearSheet()" style="position:absolute;top:6px;right:6px;padding:3px 9px;background:rgba(133,77,14,.6);color:#fff;border-radius:8px;font-size:10px;">✕</button>
-            <div style="position:absolute;top:6px;left:6px;background:rgba(255,255,255,.95);border-radius:7px;padding:2px 8px;font-size:9px;font-weight:700;color:#D97706;max-width:55%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;box-shadow:0 2px 4px rgba(0,0,0,.05);">${esc(sheetName)}</div>
+            <button class="btn" onclick="window.clearSheet()" style="position:absolute;top:6px;right:6px;padding:3px 9px;background:rgba(133,77,14,.6);color:#fff;border-radius:8px;font-size:10px;">✕</button>
+            <div style="position:absolute;top:6px;left:6px;background:rgba(255,255,255,.95);border-radius:7px;padding:2px 8px;font-size:9px;font-weight:700;color:#D97706;max-width:55%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;box-shadow:0 2px 4px rgba(0,0,0,.05);">${window.esc(sheetName)}</div>
           </div>`
         :`<div style="height:64px;border-radius:13px;background:rgba(0,0,0,.03);border:2px dashed rgba(0,0,0,.08);display:flex;align-items:center;justify-content:center;gap:7px;">
             <span style="font-size:16px;">🎼</span><span style="font-size:11px;color:#B45309;">导入曲谱图片或PDF，边看谱边练</span>
@@ -764,11 +764,11 @@ function buildPractice(){
     </div>
     <div class="glass" style="border-radius:18px;padding:18px;text-align:center;margin-bottom:11px;">
       ${max
-        ?`<div style="margin-bottom:8px;">${buildEgg(4, 60, 'anim-crack')}</div>
+        ?`<div style="margin-bottom:8px;">${window.buildEgg(4, 60, 'anim-crack')}</div>
            <p style="font-weight:800;color:#EC4899;margin-bottom:10px;">✨ 蛋已满级！</p>
-           <button class="btn" onclick="doHatch()" style="width:100%;padding:14px;background:linear-gradient(135deg,#EAB308,#EC4899);color:#fff;font-size:14px;font-weight:800;border-radius:15px;box-shadow:0 6px 18px rgba(236,72,153,.3);">开盲盒 🎁</button>`
-        :`<div style="margin-bottom:8px;">${buildEgg(lv, 60, anim)}</div>
-           <button class="btn" onclick="togglePractice()"
+           <button class="btn" onclick="window.doHatch()" style="width:100%;padding:14px;background:linear-gradient(135deg,#EAB308,#EC4899);color:#fff;font-size:14px;font-weight:800;border-radius:15px;box-shadow:0 6px 18px rgba(236,72,153,.3);">开盲盒 🎁</button>`
+        :`<div style="margin-bottom:8px;">${window.buildEgg(lv, 60, anim)}</div>
+           <button class="btn" onclick="window.togglePractice()"
              style="width:100%;padding:14px;border-radius:15px;font-size:15px;font-weight:800;
                background:${isPracticing?'linear-gradient(135deg,#EF4444,#DC2626)':'linear-gradient(135deg,#EAB308,#EC4899)'};
                color:#fff;box-shadow:${isPracticing?'0 6px 18px rgba(239,68,68,.3)':'0 6px 18px rgba(236,72,153,.3)'};">
@@ -779,14 +779,14 @@ function buildPractice(){
     <div class="glass" style="border-radius:15px;overflow:hidden;">
       <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 13px;">
         <span style="font-weight:700;font-size:12px;color:#854D0E;">📷 手型镜</span>
-        <button class="btn" onclick="toggleCamera()" style="padding:5px 11px;background:#FFFFFF;border:1px solid #FDE68A;font-size:10px;font-weight:700;color:#D97706;border-radius:8px;">${camOn?'关闭':'开启'}</button>
+        <button class="btn" onclick="window.toggleCamera()" style="padding:5px 11px;background:#FFFFFF;border:1px solid #FDE68A;font-size:10px;font-weight:700;color:#D97706;border-radius:8px;">${camOn?'关闭':'开启'}</button>
       </div>
       ${camOn
         ?`<div style="height:180px;background:#FDE68A;"><video id="cam-video" autoplay playsinline muted style="width:100%;height:100%;object-fit:cover;transform:scaleX(-1);display:block;"></video></div>`
         :`<div style="padding:8px 13px 12px;font-size:11px;color:#B45309;text-align:center;">开启后用余光检查手型和坐姿</div>`}
     </div>
     
-    <button class="btn" onclick="openAnalyzer()" style="width:100%;padding:13px;background:linear-gradient(135deg,#EAB308,#EC4899);color:#fff;font-size:13px;font-weight:800;border-radius:14px;gap:8px;margin-top:2px;">
+    <button class="btn" onclick="window.openAnalyzer()" style="width:100%;padding:13px;background:linear-gradient(135deg,#EAB308,#EC4899);color:#fff;font-size:13px;font-weight:800;border-radius:14px;gap:8px;margin-top:2px;">
       🎼 AI 识谱助手 <span style="font-size:10px;opacity:.75;font-weight:600;">（拍照分析难点）</span>
     </button>
   </div>
@@ -797,7 +797,7 @@ function buildPractice(){
       <div style="font-size:11px;opacity:.8;margin-top:2px;">手心握苹果，手腕别紧绷</div>
     </div>
   </div>`:''}
-  ${buildAnalyzerOverlay()}`;
+  ${window.buildAnalyzerOverlay()}`;
 }
 
 function buildGameIdle(){
@@ -812,7 +812,7 @@ function buildGameIdle(){
     <div style="margin-bottom:16px;">
       <div style="font-size:11px;font-weight:700;color:#B45309;margin-bottom:7px;">选择曲目</div>
       ${SONGS.map((s,i)=>`
-        <div onclick="selectSong(${i})" style="padding:11px 13px;border-radius:12px;border:2px solid ${gameSong===i?'#FBCFE8':'transparent'};background:${gameSong===i?'#FCE7F3':'#FFFFFF'};margin-bottom:5px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;color:${gameSong===i?'#DB2777':'#854D0E'};font-size:13px;font-weight:700;">
+        <div onclick="window.selectSong(${i})" style="padding:11px 13px;border-radius:12px;border:2px solid ${gameSong===i?'#FBCFE8':'transparent'};background:${gameSong===i?'#FCE7F3':'#FFFFFF'};margin-bottom:5px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;color:${gameSong===i?'#DB2777':'#854D0E'};font-size:13px;font-weight:700;">
           <span>${s.name}</span>${gameSong===i?'<span>✓</span>':''}
         </div>`).join('')}
     </div>
@@ -820,15 +820,15 @@ function buildGameIdle(){
       <div style="font-size:10px;font-weight:700;color:#B45309;margin-bottom:5px;">🎮 玩法</div>
       <div style="font-size:11px;color:#854D0E;line-height:1.7;">音符从上方落下，到达底部时点击对应彩色按键。<br>连续命中增加连击倍率！得分结束后转为蛋 XP。<br>电脑键盘：A S D F G H J 对应七个音符键。</div>
     </div>
-    <button class="btn" onclick="startGame()" style="width:100%;padding:16px;border-radius:16px;background:linear-gradient(135deg,#EAB308,#EC4899);color:#fff;font-size:16px;font-weight:800;box-shadow:0 8px 22px rgba(236,72,153,.3);">开始游戏 🎵</button>
+    <button class="btn" onclick="window.startGame()" style="width:100%;padding:16px;border-radius:16px;background:linear-gradient(135deg,#EAB308,#EC4899);color:#fff;font-size:16px;font-weight:800;box-shadow:0 8px 22px rgba(236,72,153,.3);">开始游戏 🎵</button>
   </div>`;
 }
 
-function buildGamePlaying(){ return `<div style="height:calc(100dvh - 80px - env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;overflow:hidden;"><div style="display:flex;justify-content:space-between;align-items:center;padding:8px 14px;flex-shrink:0;"><div><div style="font-size:8px;color:#B45309;font-weight:700;">SCORE</div><div class="fredoka" style="font-size:26px;color:#EAB308;" id="gscore">${gameScore}</div></div><div style="text-align:center;min-width:56px;"><div class="fredoka" style="font-size:20px;color:#EC4899;" id="gcombo"></div></div><button class="btn" onclick="endGame()" style="padding:6px 12px;background:#FEE2E2;border:1px solid #FCA5A5;color:#EF4444;font-size:11px;border-radius:9px;">结束</button></div><div id="fall-zone" style="flex:1;background:linear-gradient(to bottom,rgba(0,0,0,.02),rgba(0,0,0,.06));position:relative;overflow:hidden;">${NOTE_NAMES.map((_,i)=>`<div style="position:absolute;top:0;bottom:0;left:${(i/7*100).toFixed(1)}%;width:1px;background:rgba(0,0,0,.04);"></div>`).join('')}<div style="position:absolute;bottom:0;left:0;right:0;height:88px;background:linear-gradient(to top,rgba(236,72,153,.1),transparent);border-top:1px solid rgba(236,72,153,.2);pointer-events:none;"></div></div><div style="display:grid;grid-template-columns:repeat(7,1fr);gap:3px;padding:5px;flex-shrink:0;background:rgba(255,255,255,.8);">${NOTE_NAMES.map((name,i)=>`<button id="hk-${i}" class="hit-key" style="background:rgba(${hexRgb(NOTE_COLORS[i])},.15);border-color:rgba(${hexRgb(NOTE_COLORS[i])},.4);color:#854D0E;height:52px;" ontouchstart="hitLane(${i})" onmousedown="hitLane(${i})"><span style="font-size:11px;font-weight:800;">${name}</span><span style="font-size:8px;opacity:.6;">${KEY_LABELS[i]}</span></button>`).join('')}</div></div>`; }
+function buildGamePlaying(){ return `<div style="height:calc(100dvh - 80px - env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;overflow:hidden;"><div style="display:flex;justify-content:space-between;align-items:center;padding:8px 14px;flex-shrink:0;"><div><div style="font-size:8px;color:#B45309;font-weight:700;">SCORE</div><div class="fredoka" style="font-size:26px;color:#EAB308;" id="gscore">${gameScore}</div></div><div style="text-align:center;min-width:56px;"><div class="fredoka" style="font-size:20px;color:#EC4899;" id="gcombo"></div></div><button class="btn" onclick="window.endGame()" style="padding:6px 12px;background:#FEE2E2;border:1px solid #FCA5A5;color:#EF4444;font-size:11px;border-radius:9px;">结束</button></div><div id="fall-zone" style="flex:1;background:linear-gradient(to bottom,rgba(0,0,0,.02),rgba(0,0,0,.06));position:relative;overflow:hidden;">${NOTE_NAMES.map((_,i)=>`<div style="position:absolute;top:0;bottom:0;left:${(i/7*100).toFixed(1)}%;width:1px;background:rgba(0,0,0,.04);"></div>`).join('')}<div style="position:absolute;bottom:0;left:0;right:0;height:88px;background:linear-gradient(to top,rgba(236,72,153,.1),transparent);border-top:1px solid rgba(236,72,153,.2);pointer-events:none;"></div></div><div style="display:grid;grid-template-columns:repeat(7,1fr);gap:3px;padding:5px;flex-shrink:0;background:rgba(255,255,255,.8);">${NOTE_NAMES.map((name,i)=>`<button id="hk-${i}" class="hit-key" style="background:rgba(${window.hexRgb(NOTE_COLORS[i])},.15);border-color:rgba(${window.hexRgb(NOTE_COLORS[i])},.4);color:#854D0E;height:52px;" ontouchstart="window.hitLane(${i})" onmousedown="window.hitLane(${i})"><span style="font-size:11px;font-weight:800;">${name}</span><span style="font-size:8px;opacity:.6;">${KEY_LABELS[i]}</span></button>`).join('')}</div></div>`; }
 
 function buildGameResult(){
   const hi=gameScore>=S.gameHighScore&&gameScore>0;
-  return `<div style="padding:24px;display:flex;flex-direction:column;align-items:center;min-height:60vh;justify-content:center;"><div class="anim-popin" style="text-align:center;width:100%;max-width:300px;"><div style="font-size:50px;margin-bottom:8px;">${hi?'🎉':'🎵'}</div><h2 class="fredoka" style="font-size:28px;color:${hi?'#EC4899':'#EAB308'};margin-bottom:18px;">${hi?'新记录！':'完成！'}</h2><div class="glass" style="border-radius:16px;padding:18px;margin-bottom:18px;"><div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">${[['本次得分','#EAB308',gameScore,'30px'],['最大连击','#EC4899',gameMaxCombo+'×','30px'],['历史最高','#D97706',S.gameHighScore,'24px'],['获得 XP','#DB2777',Math.floor(gameScore/10),'24px']].map(([l,c,v,fs])=>`<div><div style="font-size:9px;color:#B45309;margin-bottom:3px;">${l}</div><div class="fredoka" style="font-size:${fs};color:${c};">${v}</div></div>`).join('')}</div></div><div style="display:flex;flex-direction:column;gap:8px;"><button class="btn" onclick="startGame()" style="width:100%;padding:13px;background:linear-gradient(135deg,#EAB308,#EC4899);color:#fff;font-size:14px;font-weight:800;border-radius:14px;">再来一局 🎮</button><button class="btn" id="back-to-idle" style="width:100%;padding:11px;background:#FFFFFF;border:1px solid #FDE68A;color:#854D0E;font-size:12px;border-radius:14px;">返回选歌</button></div></div></div>`;
+  return `<div style="padding:24px;display:flex;flex-direction:column;align-items:center;min-height:60vh;justify-content:center;"><div class="anim-popin" style="text-align:center;width:100%;max-width:300px;"><div style="font-size:50px;margin-bottom:8px;">${hi?'🎉':'🎵'}</div><h2 class="fredoka" style="font-size:28px;color:${hi?'#EC4899':'#EAB308'};margin-bottom:18px;">${hi?'新记录！':'完成！'}</h2><div class="glass" style="border-radius:16px;padding:18px;margin-bottom:18px;"><div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">${[['本次得分','#EAB308',gameScore,'30px'],['最大连击','#EC4899',gameMaxCombo+'×','30px'],['历史最高','#D97706',S.gameHighScore,'24px'],['获得 XP','#DB2777',Math.floor(gameScore/10),'24px']].map(([l,c,v,fs])=>`<div><div style="font-size:9px;color:#B45309;margin-bottom:3px;">${l}</div><div class="fredoka" style="font-size:${fs};color:${c};">${v}</div></div>`).join('')}</div></div><div style="display:flex;flex-direction:column;gap:8px;"><button class="btn" onclick="window.startGame()" style="width:100%;padding:13px;background:linear-gradient(135deg,#EAB308,#EC4899);color:#fff;font-size:14px;font-weight:800;border-radius:14px;">再来一局 🎮</button><button class="btn" id="back-to-idle" style="width:100%;padding:11px;background:#FFFFFF;border:1px solid #FDE68A;color:#854D0E;font-size:12px;border-radius:14px;">返回选歌</button></div></div></div>`;
 }
 
 function buildDex(){
@@ -863,12 +863,12 @@ function buildDex(){
 let pkFighter1 = null, pkFighter2 = null, pkState = 'idle', pkWinner = null;
 function startPK() {
   if (pkFighter1.id === pkFighter2.id) return alert("自己不能和自己打哦！");
-  pkState = 'fighting'; render();
+  pkState = 'fighting'; window.render();
   setTimeout(() => {
-    const p1 = getProfilePower(pkFighter1); const p2 = getProfilePower(pkFighter2);
+    const p1 = window.getProfilePower(pkFighter1); const p2 = window.getProfilePower(pkFighter2);
     const score1 = p1 * (1 + Math.random() * 0.1); const score2 = p2 * (1 + Math.random() * 0.1);
     pkWinner = score1 > score2 ? pkFighter1 : score2 > score1 ? pkFighter2 : null;
-    pkState = 'result'; render();
+    pkState = 'result'; window.render();
   }, 2000);
 }
 function buildPKArena() {
@@ -883,14 +883,14 @@ function buildPKArena() {
   if (!pkFighter2 || !AppStore.profiles.find(p=>p.id===pkFighter2.id)) pkFighter2 = AppStore.profiles[1];
 
   const renderCard = (fighter, selectId) => {
-    const power = getProfilePower(fighter);
+    const power = window.getProfilePower(fighter);
     let best = null;
     if (fighter.collectedPets && fighter.collectedPets.length > 0) {
-      let arr = fighter.collectedPets.map(c => petById(c.id)).filter(Boolean);
+      let arr = fighter.collectedPets.map(c => window.petById(c.id)).filter(Boolean);
       arr.sort((a,b) => b.power - a.power);
       best = arr[0];
     }
-    const opts = AppStore.profiles.map(p => `<option value="${p.id}" ${p.id===fighter.id?'selected':''}>${esc(p.name)}</option>`).join('');
+    const opts = AppStore.profiles.map(p => `<option value="${p.id}" ${p.id===fighter.id?'selected':''}>${window.esc(p.name)}</option>`).join('');
     
     return `<div class="glass" style="flex:1;padding:16px;text-align:center;border-radius:20px;">
       <select id="${selectId}" style="width:100%;padding:8px;border-radius:10px;border:1px solid rgba(234,179,8,.2);font-weight:800;font-size:14px;color:#854D0E;margin-bottom:12px;background:rgba(255,255,255,.5);outline:none;">${opts}</select>
@@ -915,12 +915,12 @@ function buildPKArena() {
 
     <div style="text-align:center;">
       ${pkState === 'idle' ? 
-        `<button class="btn" onclick="startPK()" style="padding:16px 40px;background:linear-gradient(135deg,#EAB308,#EC4899);color:#fff;font-size:18px;font-weight:800;border-radius:18px;box-shadow:0 8px 24px rgba(236,72,153,.3);">开始对战 👊</button>` 
+        `<button class="btn" onclick="window.startPK()" style="padding:16px 40px;background:linear-gradient(135deg,#EAB308,#EC4899);color:#fff;font-size:18px;font-weight:800;border-radius:18px;box-shadow:0 8px 24px rgba(236,72,153,.3);">开始对战 👊</button>` 
         : pkState === 'fighting' ? 
         `<div class="fredoka" style="font-size:24px;color:#EC4899;animation:glowpulse 1s infinite;">能量对撞中...</div>`
         : `<div class="anim-popin">
-            <h3 class="fredoka" style="font-size:32px;color:#EAB308;margin-bottom:16px;">🏆 胜者: ${pkWinner ? esc(pkWinner.name) : '平局'}</h3>
-            <button class="btn" onclick="pkState='idle';render();" style="padding:10px 24px;background:none;border:2px solid #EAB308;color:#EAB308;border-radius:12px;">再来一局</button>
+            <h3 class="fredoka" style="font-size:32px;color:#EAB308;margin-bottom:16px;">🏆 胜者: ${pkWinner ? window.esc(pkWinner.name) : '平局'}</h3>
+            <button class="btn" onclick="window.stopPK();window.render();" style="padding:10px 24px;background:none;border:2px solid #EAB308;color:#EAB308;border-radius:12px;">再来一局</button>
            </div>`
       }
     </div>
@@ -940,8 +940,8 @@ function buildStats(){
     ['第一次练琴',S.totalMinutes>0],['练习满30分钟',S.totalMinutes>=30],['练习满100分钟',S.totalMinutes>=100],
     ['收集第1只宠物',S.collectedPets.length>=1],['收集5只宠物',S.collectedPets.length>=5],
     ['连续练琴3天',S.streak>=3],['连续练琴7天',S.streak>=7],['游戏得分超500',S.gameHighScore>=500],
-    ['获得稀有宠物',S.collectedPets.some(p=>['rare','epic','legend'].includes(petById(p.id)?.rarity))],
-    ['获得史诗宠物',S.collectedPets.some(p=>['epic','legend'].includes(petById(p.id)?.rarity))],
+    ['获得稀有宠物',S.collectedPets.some(p=>['rare','epic','legend'].includes(window.petById(p.id)?.rarity))],
+    ['获得史诗宠物',S.collectedPets.some(p=>['epic','legend'].includes(window.petById(p.id)?.rarity))],
   ];
   return `<div style="padding:16px;">
     <h2 class="fredoka" style="font-size:22px;color:#EC4899;margin-bottom:13px;">📊 练琴记录</h2>
@@ -979,7 +979,7 @@ function buildTabBar(){
     {id:'dex',icon:'📖',label:'图鉴'},
     {id:'pk',icon:'⚔️',label:'竞技'}
   ];
-  return `<div class="tab-inner">${tabs.map(t=>`<div class="tab-item ${currentView===t.id?'active':''}" onclick="navigate('${t.id}')"><span class="tab-icon">${t.icon}</span><span class="tab-label">${t.label}</span></div>`).join('')}</div>`;
+  return `<div class="tab-inner">${tabs.map(t=>`<div class="tab-item ${currentView===t.id?'active':''}" onclick="window.navigate('${t.id}')"><span class="tab-icon">${t.icon}</span><span class="tab-label">${t.label}</span></div>`).join('')}</div>`;
 }
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -988,65 +988,65 @@ function buildTabBar(){
 function render(){
   const vc=document.getElementById('view-content');
   const tb=document.getElementById('tab-bar');
-  if(currentView==='setup'){ vc.innerHTML=buildSetup(); tb.innerHTML=''; return; }
-  if(currentView==='profiles'){ vc.innerHTML=buildProfiles(); tb.innerHTML=''; return; }
+  if(currentView==='setup'){ vc.innerHTML=window.buildSetup(); tb.innerHTML=''; return; }
+  if(currentView==='profiles'){ vc.innerHTML=window.buildProfiles(); tb.innerHTML=''; return; }
   
   const map={home:buildHome, practice:buildPractice, dex:buildDex, pk:buildPKArena, stats:buildStats,
-    game:()=>gameState==='playing'?buildGamePlaying():gameState==='result'?buildGameResult():buildGameIdle()};
+    game:()=>gameState==='playing'?window.buildGamePlaying():gameState==='result'?window.buildGameResult():window.buildGameIdle()};
   vc.innerHTML=(map[currentView]||buildHome)();
   tb.innerHTML=buildTabBar();
   afterRender();
 }
 
 function afterRender(){
-  if(currentView==='practice') afterPracticeRender();
+  if(currentView==='practice') window.afterPracticeRender();
   if(currentView==='game'){
-    if(gameState==='playing') bindGameKeys();
+    if(gameState==='playing') window.bindGameKeys();
     const backBtn=document.getElementById('back-to-idle');
-    if(backBtn) backBtn.addEventListener('click',()=>{ gameState='idle'; render(); });
+    if(backBtn) backBtn.addEventListener('click',()=>{ gameState='idle'; window.render(); });
   }
   if(currentView==='pk') {
     const s1 = document.getElementById('sel-f1');
     const s2 = document.getElementById('sel-f2');
-    if(s1) s1.addEventListener('change', (e) => { pkFighter1 = AppStore.profiles.find(p=>p.id===e.target.value); render(); });
-    if(s2) s2.addEventListener('change', (e) => { pkFighter2 = AppStore.profiles.find(p=>p.id===e.target.value); render(); });
+    if(s1) s1.addEventListener('change', (e) => { pkFighter1 = AppStore.profiles.find(p=>p.id===e.target.value); window.render(); });
+    if(s2) s2.addEventListener('change', (e) => { pkFighter2 = AppStore.profiles.find(p=>p.id===e.target.value); window.render(); });
   }
   if(currentView==='stats'){
     const resetBtn=document.getElementById('reset-btn');
-    if(resetBtn) resetBtn.addEventListener('click',()=>{ if(confirm('确定要清空所有数据？')) resetAll(); });
+    if(resetBtn) resetBtn.addEventListener('click',()=>{ if(confirm('确定要清空所有数据？')) window.resetAll(); });
   }
 }
 
 function stopPK() { pkState = 'idle'; }
 
 function resetAll(){
-  stopPractice(); if(metroOn) stopMetro();
+  window.stopPractice(); if(metroOn) window.stopMetro();
   if(camStream){ camStream.getTracks().forEach(t=>t.stop()); camStream=null; camOn=false; }
   localStorage.removeItem('piano_pet_v4_multi'); 
   AppStore = { profiles: [], activeId: null }; S = null;
   practiceSeconds=0; combo=0; sheetData=null; sheetName='';
-  gameState='idle'; currentView='setup'; render();
+  gameState='idle'; currentView='setup'; window.render();
 }
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-//  AI 识谱 (Gemini Vision — 通过 /api/analyze 代理)
+//  AI 识谱 (Gemini Vision)
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-let analyzerState = 'idle'; // idle | capturing | analyzing | done | error
+let analyzerState = 'idle'; 
 let analyzerResult = '';
 let analyzerStream = null;
 
 function openAnalyzer(){
-  analyzerState = 'capturing'; analyzerResult = ''; refreshPractice();
+  analyzerState = 'capturing'; analyzerResult = ''; window.refreshPractice();
   setTimeout(()=>{
     const v = document.getElementById('analyzer-video'); if(!v) return;
     navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: 'environment' } } })
       .then(s => { analyzerStream = s; v.srcObject = s; })
-      .catch(()=>{ analyzerState='error'; analyzerResult='无法访问摄像头，请检查权限。'; refreshPractice(); });
+      .catch(()=>{ analyzerState='error'; analyzerResult='无法访问摄像头，请检查权限。'; window.refreshPractice(); });
   }, 80);
 }
 function closeAnalyzer(){
   if(analyzerStream){ analyzerStream.getTracks().forEach(t=>t.stop()); analyzerStream=null; }
-  analyzerState = 'idle'; analyzerResult = ''; refreshPractice();
+  analyzerState = 'idle'; analyzerResult = ''; window.refreshPractice();
 }
 async function captureAndAnalyze(){
   const v = document.getElementById('analyzer-video'); const c = document.getElementById('analyzer-canvas');
@@ -1054,10 +1054,10 @@ async function captureAndAnalyze(){
   c.width = v.videoWidth || 640; c.height = v.videoHeight || 480; c.getContext('2d').drawImage(v, 0, 0, c.width, c.height);
   const b64 = c.toDataURL('image/jpeg', 0.85).split(',')[1];
   if(analyzerStream){ analyzerStream.getTracks().forEach(t=>t.stop()); analyzerStream=null; }
-  analyzerState = 'analyzing'; refreshPractice();
+  analyzerState = 'analyzing'; window.refreshPractice();
 
   try {
-    const resp = await fetch('/api/analyze', {
+    const resp = await fetch('/.netlify/functions/analyze', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ contents:[{ parts:[
         { text:`你是一个耐心温柔的儿童钢琴老师。请分析这张钢琴乐谱的照片，用10岁孩子能懂的语言，分点说明：
@@ -1074,7 +1074,7 @@ async function captureAndAnalyze(){
     analyzerResult = data.candidates?.[0]?.content?.parts?.[0]?.text || '分析失败，请重试。';
     analyzerState = 'done';
   } catch(e) { analyzerResult = `出错了：${e.message}`; analyzerState = 'error'; }
-  refreshPractice();
+  window.refreshPractice();
 }
 
 function buildAnalyzerOverlay(){
@@ -1083,7 +1083,7 @@ function buildAnalyzerOverlay(){
   return `<div style="position:fixed;inset:0;z-index:95;background:rgba(255,251,235,.97);display:flex;flex-direction:column;">
     <div style="display:flex;justify-content:space-between;align-items:center;padding:16px;flex-shrink:0;border-bottom:1px solid rgba(0,0,0,.06);">
       <div><div class="fredoka" style="font-size:18px;color:#EC4899;">🎼 AI 识谱助手</div><div style="font-size:11px;color:#B45309;">由 Gemini 驱动</div></div>
-      <button class="btn" onclick="closeAnalyzer()" style="padding:8px 14px;background:#FEF3C7;color:#854D0E;font-size:12px;border-radius:10px;">✕ 关闭</button>
+      <button class="btn" onclick="window.closeAnalyzer()" style="padding:8px 14px;background:#FEF3C7;color:#854D0E;font-size:12px;border-radius:10px;">✕ 关闭</button>
     </div>
     <div style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:14px;">
       ${isCapturing ? `<div style="position:relative;border-radius:16px;overflow:hidden;background:#FDE68A;aspect-ratio:4/3;flex-shrink:0;">
@@ -1091,13 +1091,25 @@ function buildAnalyzerOverlay(){
           <div style="position:absolute;inset:12%;border:2px solid rgba(236,72,153,.6);border-radius:8px;pointer-events:none;"></div>
           <div style="position:absolute;bottom:12px;left:0;right:0;text-align:center;font-size:11px;color:#B45309;">将五线谱置于框内，光线充足效果更好</div>
         </div><canvas id="analyzer-canvas" style="display:none;"></canvas>
-        <button class="btn" onclick="captureAndAnalyze()" style="width:100%;padding:15px;background:linear-gradient(135deg,#EAB308,#EC4899);color:#fff;font-size:15px;font-weight:800;border-radius:14px;">📸 拍照并分析</button>` : ''}
+        <button class="btn" onclick="window.captureAndAnalyze()" style="width:100%;padding:15px;background:linear-gradient(135deg,#EAB308,#EC4899);color:#fff;font-size:15px;font-weight:800;border-radius:14px;">📸 拍照并分析</button>` : ''}
       ${isAnalyzing ? `<div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:40px 0;"><div style="font-size:48px;" class="anim-float">🤔</div><div style="font-size:15px;font-weight:700;color:#EC4899;">AI 老师正在分析中...</div><div style="font-size:12px;color:#B45309;">请稍候几秒</div></div>` : ''}
-      ${isDone ? `<div style="background:#FCE7F3;border:1px solid #FBCFE8;border-radius:16px;padding:18px;"><div style="font-size:11px;font-weight:700;color:#EC4899;margin-bottom:10px;">📋 分析结果</div><div style="font-size:13px;color:#854D0E;line-height:1.8;white-space:pre-wrap;">${esc(analyzerResult)}</div></div><div style="display:flex;gap:8px;"><button class="btn" onclick="openAnalyzer();" style="flex:1;padding:13px;background:#FFFFFF;border:1px solid #FDE68A;color:#B45309;font-size:13px;border-radius:12px;">🔄 重新拍摄</button><button class="btn" onclick="closeAnalyzer();" style="flex:1;padding:13px;background:#FCE7F3;border:1px solid #FBCFE8;color:#DB2777;font-size:13px;border-radius:12px;">✓ 开始练琴</button></div>` : ''}
+      ${isDone ? `<div style="background:#FCE7F3;border:1px solid #FBCFE8;border-radius:16px;padding:18px;"><div style="font-size:11px;font-weight:700;color:#EC4899;margin-bottom:10px;">📋 分析结果</div><div style="font-size:13px;color:#854D0E;line-height:1.8;white-space:pre-wrap;">${window.esc(analyzerResult)}</div></div><div style="display:flex;gap:8px;"><button class="btn" onclick="window.openAnalyzer();" style="flex:1;padding:13px;background:#FFFFFF;border:1px solid #FDE68A;color:#B45309;font-size:13px;border-radius:12px;">🔄 重新拍摄</button><button class="btn" onclick="window.closeAnalyzer();" style="flex:1;padding:13px;background:#FCE7F3;border:1px solid #FBCFE8;color:#DB2777;font-size:13px;border-radius:12px;">✓ 开始练琴</button></div>` : ''}
     </div></div>`;
 }
 
-Object.assign(window,{ navigate, doSetup, togglePractice, changeBpm, toggleMetro, toggleCamera, loadSheet, clearSheet, doHatch, selectSong, startGame, endGame, hitLane, openAnalyzer, closeAnalyzer, captureAndAnalyze, eggInteract, switchProfile, startPK });
+// 强制绑定所有会被 innerHTML 触发的函数到 window，解决沙盒内联事件无作用域问题
+Object.assign(window,{ 
+  navigate, doSetup, togglePractice, changeBpm, toggleMetro, toggleCamera, loadSheet, clearSheet, 
+  doHatch, selectSong, startGame, endGame, hitLane, openAnalyzer, closeAnalyzer, captureAndAnalyze, 
+  eggInteract, switchProfile, startPK, stopPK, render, afterRender, buildSetup, buildProfiles, 
+  buildHome, buildPractice, buildGameIdle, buildGamePlaying, buildGameResult, buildDex, 
+  buildPKArena, buildStats, buildTabBar, bindGameKeys, removeGameKeys, spawnLoop, spawnNote, 
+  sweepMissed, playNoteSound, flashKey, updateGameHUD, showJudgment, getProfilePower, petById, 
+  esc, hexRgb, resetAll, addXp, eggMax, xpPct, eggLevel, fmtTime, playChime, schedulePosture, 
+  recordDay, showHatchModal, stopPractice, startPractice, stopMetro, startMetro, restartMetro, 
+  refreshPractice, afterPracticeRender, buildEgg, buildAnalyzerOverlay
+});
+
 render();
 </script>
 </body>
