@@ -10,8 +10,8 @@
 html, body { height: 100%; }
 body {
   font-family: 'Nunito', sans-serif;
-  background: #0f0a1e;
-  color: #fff;
+  background: #FFFBEB;
+  color: #854D0E;
   overflow-x: hidden;
   -webkit-tap-highlight-color: transparent;
 }
@@ -19,45 +19,38 @@ body {
 #app { position: relative; z-index: 1; min-height: 100%; max-width: 480px; margin: 0 auto; display: flex; flex-direction: column; }
 #view-content { flex: 1; overflow-y: auto; padding-bottom: calc(80px + env(safe-area-inset-bottom, 0px)); }
 
-/* iPad / large-screen: wider app shell */
-@media (min-width: 768px) {
-  #app { max-width: 540px; }
-}
-
-/* Ensure tab bar never overlaps content on any device */
+@media (min-width: 768px) { #app { max-width: 540px; } }
 .tab-bar-spacer { height: calc(80px + env(safe-area-inset-bottom, 0px)); flex-shrink: 0; }
 
 .starfield {
   position: fixed; inset: 0; pointer-events: none; z-index: 0;
-  background: radial-gradient(ellipse at 20% 50%, #1a0533 0%, transparent 60%),
-              radial-gradient(ellipse at 80% 20%, #0d1a3a 0%, transparent 50%), #0f0a1e;
+  background: radial-gradient(ellipse at 20% 50%, #FEF3C7 0%, transparent 60%),
+              radial-gradient(ellipse at 80% 20%, #FEE2E2 0%, transparent 50%), #FFFBEB;
 }
 .starfield::before {
   content: ''; position: absolute; inset: 0;
   background-image:
-    radial-gradient(1px 1px at 15% 25%, rgba(255,255,255,.6) 0%, transparent 100%),
-    radial-gradient(1px 1px at 80% 10%, rgba(255,255,255,.4) 0%, transparent 100%),
-    radial-gradient(1.5px 1.5px at 50% 70%, rgba(255,255,255,.5) 0%, transparent 100%),
-    radial-gradient(1px 1px at 10% 80%, rgba(255,255,255,.3) 0%, transparent 100%),
-    radial-gradient(1px 1px at 90% 60%, rgba(255,255,255,.4) 0%, transparent 100%),
-    radial-gradient(1px 1px at 35% 15%, rgba(255,255,255,.5) 0%, transparent 100%),
-    radial-gradient(1px 1px at 65% 85%, rgba(255,255,255,.3) 0%, transparent 100%),
-    radial-gradient(1px 1px at 45% 45%, rgba(255,255,255,.6) 0%, transparent 100%),
-    radial-gradient(1px 1px at 72% 38%, rgba(255,255,255,.35) 0%, transparent 100%),
-    radial-gradient(1px 1px at 28% 62%, rgba(255,255,255,.45) 0%, transparent 100%);
+    radial-gradient(30px 30px at 15% 25%, rgba(236,72,153,.05) 0%, transparent 100%),
+    radial-gradient(40px 40px at 80% 10%, rgba(234,179,8,.05) 0%, transparent 100%),
+    radial-gradient(25px 25px at 50% 70%, rgba(236,72,153,.04) 0%, transparent 100%),
+    radial-gradient(50px 50px at 10% 80%, rgba(234,179,8,.06) 0%, transparent 100%),
+    radial-gradient(35px 35px at 90% 60%, rgba(236,72,153,.05) 0%, transparent 100%);
+  filter: blur(8px);
 }
 
 .glass {
-  background: rgba(255,255,255,.05);
+  background: rgba(255, 255, 255, 0.7);
   backdrop-filter: blur(12px);
-  border: 1px solid rgba(255,255,255,.1);
+  border: 1px solid rgba(234, 179, 8, 0.2);
   border-radius: 20px;
+  box-shadow: 0 4px 15px rgba(236, 72, 153, 0.05);
 }
 .glass-dark {
-  background: rgba(15,10,30,.8);
+  background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(16px);
-  border: 1px solid rgba(167,139,250,.2);
+  border: 1px solid rgba(236, 72, 153, 0.25);
   border-radius: 20px;
+  box-shadow: 0 8px 30px rgba(236, 72, 153, 0.08);
 }
 
 .fredoka { font-family: 'Fredoka One', cursive; }
@@ -65,10 +58,9 @@ body {
 @keyframes float     { 0%,100%{transform:translateY(0) rotate(-2deg)} 50%{transform:translateY(-12px) rotate(2deg)} }
 @keyframes wiggle    { 0%,100%{transform:rotate(-6deg)} 50%{transform:rotate(6deg)} }
 @keyframes shake     { 0%,100%{transform:translate(0,0) rotate(0)} 25%{transform:translate(-3px,0) rotate(-3deg)} 75%{transform:translate(3px,0) rotate(3deg)} }
-@keyframes crackglow { 0%,100%{filter:drop-shadow(0 0 8px #fbbf24)} 50%{filter:drop-shadow(0 0 22px #f59e0b)} }
 @keyframes popin     { 0%{transform:scale(0) rotate(-20deg);opacity:0} 70%{transform:scale(1.1) rotate(4deg)} 100%{transform:scale(1) rotate(0);opacity:1} }
 @keyframes shimmer   { 0%{background-position:-200% center} 100%{background-position:200% center} }
-@keyframes glowpulse { 0%,100%{box-shadow:0 0 20px rgba(167,139,250,.25)} 50%{box-shadow:0 0 42px rgba(167,139,250,.55)} }
+@keyframes glowpulse { 0%,100%{box-shadow:0 0 20px rgba(234,179,8,.15)} 50%{box-shadow:0 0 42px rgba(236,72,153,.25)} }
 @keyframes combofly  { 0%{transform:translateY(0);opacity:1} 100%{transform:translateY(-55px);opacity:0} }
 @keyframes notefall  { from{transform:translateY(-70px);opacity:0} 6%{opacity:1} to{transform:translateY(var(--fd));opacity:1} }
 @keyframes notehit   { 0%{transform:scale(1);opacity:1} 60%{transform:scale(1.4);opacity:.6} 100%{transform:scale(.2);opacity:0} }
@@ -76,12 +68,53 @@ body {
 .anim-float    { animation: float 3s ease-in-out infinite; }
 .anim-wiggle   { animation: wiggle .5s ease-in-out infinite; }
 .anim-shake    { animation: shake .3s ease-in-out infinite; }
-.anim-crack    { animation: crackglow 1.5s ease-in-out infinite; }
 .anim-popin    { animation: popin .5s cubic-bezier(.175,.885,.32,1.275) forwards; }
 .anim-glowpulse{ animation: glowpulse 2.2s ease-in-out infinite; }
 
+/* ── 蛋互动动画 ── */
+@keyframes egg-wiggle-left  { 0%{transform:rotate(0)} 25%{transform:rotate(-18deg) scale(1.08)} 50%{transform:rotate(12deg) scale(.96)} 75%{transform:rotate(-8deg)} 100%{transform:rotate(0)} }
+@keyframes egg-wiggle-right { 0%{transform:rotate(0)} 25%{transform:rotate(18deg) scale(1.08)} 50%{transform:rotate(-12deg) scale(.96)} 75%{transform:rotate(8deg)} 100%{transform:rotate(0)} }
+@keyframes egg-bounce       { 0%{transform:translateY(0) scale(1)} 30%{transform:translateY(-22px) scale(1.06,.94)} 55%{transform:translateY(0) scale(.94,1.06)} 75%{transform:translateY(-10px) scale(1.03,.97)} 100%{transform:translateY(0) scale(1)} }
+@keyframes egg-shy          { 0%{transform:translateX(0) rotate(0)} 20%{transform:translateX(28px) rotate(10deg)} 50%{transform:translateX(20px) rotate(-6deg)} 80%{transform:translateX(28px) rotate(8deg)} 100%{transform:translateX(0) rotate(0)} }
+@keyframes egg-run-left     { 0%{transform:translateX(0) rotate(0)} 15%{transform:translateX(-38px) rotate(-20deg)} 40%{transform:translateX(-26px) rotate(12deg)} 65%{transform:translateX(-42px) rotate(-15deg)} 100%{transform:translateX(0) rotate(0)} }
+@keyframes egg-run-right    { 0%{transform:translateX(0) rotate(0)} 15%{transform:translateX(38px) rotate(20deg)} 40%{transform:translateX(26px) rotate(-12deg)} 65%{transform:translateX(42px) rotate(15deg)} 100%{transform:translateX(0) rotate(0)} }
+@keyframes egg-spin         { 0%{transform:rotate(0) scale(1)} 40%{transform:rotate(340deg) scale(1.12)} 70%{transform:rotate(380deg) scale(.9)} 100%{transform:rotate(360deg) scale(1)} }
+
+.egg-wiggle-left  { animation: egg-wiggle-left  var(--egg-dur,.5s) ease forwards !important; }
+.egg-wiggle-right { animation: egg-wiggle-right var(--egg-dur,.5s) ease forwards !important; }
+.egg-bounce       { animation: egg-bounce       var(--egg-dur,.6s) cubic-bezier(.36,.07,.19,.97) forwards !important; }
+.egg-shy          { animation: egg-shy          var(--egg-dur,.8s) ease-in-out forwards !important; }
+.egg-run-left     { animation: egg-run-left     var(--egg-dur,.7s) ease-in-out forwards !important; }
+.egg-run-right    { animation: egg-run-right    var(--egg-dur,.7s) ease-in-out forwards !important; }
+.egg-spin         { animation: egg-spin         var(--egg-dur,.6s) ease-in-out forwards !important; }
+.egg-interact-wrapper { display: inline-block; transform-origin: bottom center; }
+
+/* 独立的地板阴影 */
+.egg-shadow {
+  position: absolute; bottom: -12%; left: 50%; transform: translateX(-50%); width: 75%; height: 25%;
+  background: radial-gradient(ellipse at center, rgba(133,77,14,0.15) 0%, rgba(133,77,14,0) 70%);
+  border-radius: 50%; pointer-events: none; z-index: 1;
+}
+@keyframes shadow-pulse { 0%, 100% { transform: translateX(-50%) scale(1); opacity: 1; } 50% { transform: translateX(-50%) scale(0.8); opacity: 0.4; } }
+.anim-shadow-pulse { animation: shadow-pulse 3s ease-in-out infinite; }
+
+/* 纯 CSS 硬件加速 3D 蛋 */
+.pet-egg {
+  width: var(--egg-size, 88px); height: calc(var(--egg-size, 88px) * 1.25);
+  border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%; position: relative;
+  box-shadow: inset -10px -15px 20px rgba(0,0,0,0.1), inset 8px 8px 15px rgba(255,255,255,0.6), 0 15px 25px var(--egg-shadow, rgba(236,72,153,0.15));
+  overflow: hidden; transform: translateZ(0);
+}
+.pet-egg::after {
+  content: ''; position: absolute; top: 6%; left: 15%; width: 40%; height: 45%; border-radius: 50%;
+  background: linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0) 100%);
+  transform: rotate(-25deg); pointer-events: none;
+}
+@keyframes crackglow { 0%,100%{transform:scale(1) rotate(-1deg);filter:brightness(1)} 50%{transform:scale(1.05) rotate(1deg);filter:brightness(1.15)} }
+.anim-crack { animation: crackglow 1.5s ease-in-out infinite; }
+
 .progress-fill {
-  background: linear-gradient(90deg,#a78bfa,#f472b6,#a78bfa);
+  background: linear-gradient(90deg, #EAB308, #EC4899, #EAB308);
   background-size: 200% auto;
   animation: shimmer 2s linear infinite;
   height: 100%; border-radius: 99px;
@@ -90,40 +123,38 @@ body {
 
 .tab-bar  { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 480px; z-index: 50; padding-bottom: env(safe-area-inset-bottom, 0px); }
 @media (min-width: 768px) { .tab-bar { max-width: 540px; } }
-.tab-inner{ margin: 6px 10px; background: rgba(15,10,30,.88); backdrop-filter: blur(16px); border: 1px solid rgba(167,139,250,.2); border-radius: 20px; padding: 6px 4px; display: flex; gap: 2px; }
+.tab-inner{ margin: 6px 10px; background: rgba(255,255,255,0.9); backdrop-filter: blur(16px); border: 1px solid rgba(234,179,8,0.15); border-radius: 20px; padding: 6px 4px; display: flex; gap: 2px; box-shadow: 0 8px 24px rgba(234,179,8,0.08); }
 .tab-item { flex:1; display:flex; flex-direction:column; align-items:center; gap:2px; padding:8px 2px; cursor:pointer; border-radius:14px; transition:background .2s; user-select:none; }
-.tab-item.active { background: rgba(167,139,250,.15); }
+.tab-item.active { background: rgba(236,72,153,0.1); }
 .tab-icon { font-size:20px; transition:transform .2s; }
 .tab-item.active .tab-icon { transform:scale(1.15); }
-.tab-label{ font-size:9px; font-weight:700; color:rgba(255,255,255,.35); transition:color .2s; }
-.tab-item.active .tab-label { color:#a78bfa; }
+.tab-label{ font-size:9px; font-weight:700; color:#A8A29E; transition:color .2s; }
+.tab-item.active .tab-label { color:#DB2777; }
 
 .btn { border:none; cursor:pointer; font-family:inherit; font-weight:700; border-radius:14px; transition:transform .14s, opacity .14s; display:inline-flex; align-items:center; justify-content:center; }
 .btn:active { transform:scale(.95); }
 
 .hit-key { border-radius:12px; display:flex; flex-direction:column; align-items:center; justify-content:center; cursor:pointer; user-select:none; border:2px solid; transition:all .1s; font-family:inherit; font-weight:800; padding:6px 2px; background:none; }
-.hit-key.pressed { filter:brightness(1.7); transform:scale(.92); box-shadow:0 0 18px currentColor; }
+.hit-key.pressed { filter:brightness(1.1); transform:scale(.92); box-shadow:0 0 14px currentColor; }
 
 .note-block { position:absolute; border-radius:12px; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:13px; pointer-events:none; animation:notefall var(--fd-dur,2s) linear forwards; }
-
-.judgment-popup { position:fixed; left:50%; transform:translateX(-50%); font-weight:900; pointer-events:none; animation:combofly .85s ease forwards; white-space:nowrap; text-shadow:0 2px 8px rgba(0,0,0,.5); z-index:80; }
-
+.judgment-popup { position:fixed; left:50%; transform:translateX(-50%); font-weight:900; pointer-events:none; animation:combofly .85s ease forwards; white-space:nowrap; text-shadow:0 1px 4px rgba(0,0,0,.15); z-index:80; }
 .cal-day  { width:30px; height:30px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:10px; font-weight:700; }
-.cal-done { background:rgba(52,211,153,.2); color:#34d399; border:1px solid rgba(52,211,153,.3); }
-.cal-today{ outline:2px solid #a78bfa; }
-.cal-empty{ background:rgba(255,255,255,.04); color:rgba(255,255,255,.2); }
+.cal-done { background:rgba(234,179,8,.15); color:#CA8A04; border:1px solid rgba(234,179,8,.3); }
+.cal-today{ outline:2px solid #EC4899; }
+.cal-empty{ background:rgba(0,0,0,.03); color:#D6D3D1; }
 
-.modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,.78); backdrop-filter:blur(8px); z-index:100; display:flex; align-items:center; justify-content:center; padding:16px; }
+.modal-overlay { position:fixed; inset:0; background:rgba(255,251,235,.8); backdrop-filter:blur(8px); z-index:100; display:flex; align-items:center; justify-content:center; padding:16px; }
 
-.rarity-common { background:#374151; color:#9ca3af; }
-.rarity-rare   { background:#1d4ed8; color:#93c5fd; }
-.rarity-epic   { background:linear-gradient(135deg,#7c3aed,#db2777); color:#fff; }
-.rarity-legend { background:linear-gradient(135deg,#b45309,#d97706); color:#fef3c7; }
+.rarity-common { background:#FEF3C7; color:#A16207; border:1px solid #FDE68A; }
+.rarity-rare   { background:#FCE7F3; color:#BE185D; border:1px solid #FBCFE8; }
+.rarity-epic   { background:linear-gradient(135deg,#EAB308,#EC4899); color:#fff; }
+.rarity-legend { background:linear-gradient(135deg,#EC4899,#8B5CF6); color:#fff; }
 
-input[type=range]{ accent-color:#a78bfa; cursor:pointer; }
+input[type=range]{ accent-color:#EC4899; cursor:pointer; }
 ::-webkit-scrollbar{ width:5px; }
 ::-webkit-scrollbar-track{ background:transparent; }
-::-webkit-scrollbar-thumb{ background:rgba(167,139,250,.35); border-radius:99px; }
+::-webkit-scrollbar-thumb{ background:rgba(236,72,153,.3); border-radius:99px; }
 </style>
 </head>
 <body>
@@ -137,14 +168,14 @@ input[type=range]{ accent-color:#a78bfa; cursor:pointer; }
 'use strict';
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-//  CONSTANTS
+//  CONSTANTS & DATA
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 const XP_LEVELS  = [0, 150, 400, 800, 1500];
 const EGG_STAGES = ['沉睡中','轻微颤动','出现裂缝','破壳前夕','✨ 满级'];
 const EGG_ANIMS  = ['anim-float','anim-wiggle','anim-wiggle','anim-shake','anim-crack'];
 
 const NOTE_NAMES  = ['Do','Re','Mi','Fa','Sol','La','Si'];
-const NOTE_COLORS = ['#f87171','#fb923c','#fbbf24','#4ade80','#60a5fa','#a78bfa','#f472b6'];
+const NOTE_COLORS = ['#EF4444','#F97316','#F59E0B','#10B981','#3B82F6','#8B5CF6','#EC4899'];
 const NOTE_FREQS  = [261.63,293.66,329.63,349.23,392.00,440.00,493.88];
 const KEY_LABELS  = ['A','S','D','F','G','H','J'];
 
@@ -165,30 +196,27 @@ const SONGS = [
   { name:'生日快乐', seq:[0,0,1,0,3,2,0,0,1,0,4,3,0,0,0,5,3,2,1,6,6,5,3,4,3] },
 ];
 
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-//  PET DATA
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 const PETS_R = {
   common: [
-    {id:'c1',emoji:'🐱',name:'音符小猫',  color:'#8b5cf6',power:80},
-    {id:'c2',emoji:'🐰',name:'节拍兔',    color:'#ec4899',power:90},
-    {id:'c3',emoji:'🐸',name:'哼歌青蛙',  color:'#10b981',power:85},
-    {id:'c4',emoji:'🐹',name:'练习仓鼠',  color:'#f59e0b',power:75},
-    {id:'c5',emoji:'🦔',name:'刺猬琴手',  color:'#6366f1',power:88},
+    {id:'c1',emoji:'🐱',name:'音符小猫',  color:'#EAB308',power:80},
+    {id:'c2',emoji:'🐰',name:'节拍兔',    color:'#EC4899',power:90},
+    {id:'c3',emoji:'🐸',name:'哼歌青蛙',  color:'#EAB308',power:85},
+    {id:'c4',emoji:'🐹',name:'练习仓鼠',  color:'#EC4899',power:75},
+    {id:'c5',emoji:'🦔',name:'刺猬琴手',  color:'#EAB308',power:88},
   ],
   rare: [
-    {id:'r1',emoji:'🦊',name:'魔法赤狐',    color:'#f97316',power:220},
-    {id:'r2',emoji:'🦋',name:'旋律蝴蝶',    color:'#a78bfa',power:240},
-    {id:'r3',emoji:'🐬',name:'海豚音姬',    color:'#06b6d4',power:210},
-    {id:'r4',emoji:'🦉',name:'夜曲猫头鹰',  color:'#8b5cf6',power:250},
+    {id:'r1',emoji:'🦊',name:'魔法赤狐',    color:'#EC4899',power:220},
+    {id:'r2',emoji:'🦋',name:'旋律蝴蝶',    color:'#EAB308',power:240},
+    {id:'r3',emoji:'🐬',name:'海豚音姬',    color:'#DB2777',power:210},
+    {id:'r4',emoji:'🦉',name:'夜曲猫头鹰',  color:'#EAB308',power:250},
   ],
   epic: [
-    {id:'e1',emoji:'🐉',name:'韵律龙王',   color:'#7c3aed',power:600},
-    {id:'e2',emoji:'🦄',name:'星光独角兽', color:'#ec4899',power:650},
-    {id:'e3',emoji:'🔥',name:'烈焰凤凰',   color:'#ef4444',power:700},
+    {id:'e1',emoji:'🐉',name:'韵律龙王',   color:'#EAB308',power:600},
+    {id:'e2',emoji:'🦄',name:'星光独角兽', color:'#DB2777',power:650},
+    {id:'e3',emoji:'🔥',name:'烈焰凤凰',   color:'#E11D48',power:700},
   ],
   legend: [
-    {id:'l1',emoji:'✨',name:'宇宙乐神', color:'#fbbf24',power:1500},
+    {id:'l1',emoji:'✨',name:'宇宙乐神', color:'#EC4899',power:1500},
   ],
 };
 const ALL_PETS = [...PETS_R.common,...PETS_R.rare,...PETS_R.epic,...PETS_R.legend];
@@ -202,47 +230,65 @@ function drawPet(streak){
   if(r>0.55) return rnd(PETS_R.rare);
   return rnd(PETS_R.common);
 }
-function hexRgb(hex){
-  return parseInt(hex.slice(1,3),16)+','+parseInt(hex.slice(3,5),16)+','+parseInt(hex.slice(5,7),16);
-}
-// XSS防护：所有用户输入渲染到HTML前必须经过此函数
-function esc(str){
-  return String(str)
-    .replace(/&/g,'&amp;')
-    .replace(/</g,'&lt;')
-    .replace(/>/g,'&gt;')
-    .replace(/"/g,'&quot;')
-    .replace(/'/g,'&#39;');
-}
+function hexRgb(hex){ return parseInt(hex.slice(1,3),16)+','+parseInt(hex.slice(3,5),16)+','+parseInt(hex.slice(5,7),16); }
+function esc(str){ return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-//  STATE
+//  MULTI-PROFILE STATE MANAGEMENT
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-function defaultState(){
-  return { name:'', eggXp:0, totalMinutes:0, streak:0, lastPracticeDate:'',
-           collectedPets:[], checkinDays:[], gameHighScore:0,
-           settings:{ bpm:90, checkInterval:300 } };
+let AppStore = { profiles: [], activeId: null };
+let S = null;
+
+function createProfileData(name) {
+  return {
+    id: Date.now().toString() + Math.random().toString(36).substr(2, 5),
+    name: name, eggXp: 0, totalMinutes: 0, streak: 0, lastPracticeDate: '',
+    collectedPets: [], checkinDays: [], gameHighScore: 0,
+    settings: { bpm: 90, checkInterval: 300 }
+  };
 }
-let S = (()=>{
-  try{ const r=localStorage.getItem('piano_pet_v3'); if(r) return JSON.parse(r); }catch(_){}
-  return defaultState();
-})();
-function save(){ try{ localStorage.setItem('piano_pet_v3',JSON.stringify(S)); }catch(_){} }
+
+function loadStore() {
+  try {
+    const r = localStorage.getItem('piano_pet_v4_multi');
+    if(r) AppStore = JSON.parse(r);
+  } catch(_) {}
+  
+  if(AppStore.profiles.length === 0) {
+    try {
+      const oldS = JSON.parse(localStorage.getItem('piano_pet_v3'));
+      if(oldS && oldS.name) {
+        const p = createProfileData(oldS.name);
+        Object.assign(p, oldS);
+        p.id = 'legacy';
+        AppStore.profiles.push(p);
+        AppStore.activeId = p.id;
+      }
+    } catch(_) {}
+  }
+  if(AppStore.activeId) { S = AppStore.profiles.find(p => p.id === AppStore.activeId); }
+}
+loadStore();
+
+function save(){ try{ localStorage.setItem('piano_pet_v4_multi',JSON.stringify(AppStore)); }catch(_){} }
 
 function eggLevel(){
+  if(!S) return 0;
   let lv=0;
   for(let i=0;i<XP_LEVELS.length;i++) if(S.eggXp>=XP_LEVELS[i]) lv=i;
   return lv;
 }
 function eggMax(){ return eggLevel()>=XP_LEVELS.length-1; }
 function xpPct(){
+  if(!S) return 0;
   const lv=eggLevel();
   if(eggMax()) return 100;
   return Math.min(100,((S.eggXp-XP_LEVELS[lv])/(XP_LEVELS[lv+1]-XP_LEVELS[lv]))*100);
 }
-function addXp(n){ S.eggXp+=n; save(); }
+function addXp(n){ if(S) { S.eggXp+=n; save(); } }
 function todayStr(){ return new Date().toISOString().slice(0,10); }
 function recordDay(){
+  if(!S) return;
   const today=todayStr();
   if(S.lastPracticeDate===today) return;
   const y=new Date(); y.setDate(y.getDate()-1);
@@ -252,9 +298,81 @@ function recordDay(){
   if(!S.checkinDays.includes(today)) S.checkinDays.push(today);
   save();
 }
+function getProfilePower(profile) {
+  if (!profile.collectedPets) return 0;
+  return profile.collectedPets.reduce((tot, col) => {
+    const p = petById(col.id);
+    return tot + (p ? p.power * (col.count || 1) : 0);
+  }, 0);
+}
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-//  AUDIO
+//  EGG RENDERING & INTERACTION (3D)
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+function buildEgg(lv, size, animClass = '') {
+  const colors = [
+    ['#E0F2FE', '#38BDF8', '#0284C7', 'rgba(2,132,199,0.3)'],   // 0: 清透天蓝
+    ['#FEF08A', '#EAB308', '#A16207', 'rgba(161,98,7,0.3)'],    // 1: 柠檬黄
+    ['#FFEDD5', '#FB923C', '#C2410C', 'rgba(194,65,12,0.3)'],   // 2: 活力橙
+    ['#FBCFE8', '#EC4899', '#9D174D', 'rgba(157,23,77,0.3)'],   // 3: 玫粉色
+    ['#FDE047', '#F59E0B', '#BE185D', 'rgba(236,72,153,0.4)']   // 4: 金粉交织
+  ];
+  const c = colors[Math.min(lv, 4)];
+  const bg = `radial-gradient(circle at 35% 30%, ${c[0]} 0%, ${c[1]} 45%, ${c[2]} 100%)`;
+  
+  let cracks = '';
+  if(lv >= 2) cracks += `<path d="M45,25 L40,45 L52,60" fill="none" stroke="rgba(133,77,14,0.4)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M45,26 L40,46 L52,61" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>`;
+  if(lv >= 3) cracks += `<path d="M52,60 L65,75 L55,95" fill="none" stroke="rgba(133,77,14,0.4)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M52,61 L65,76 L55,96" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/><path d="M40,45 L25,55 L28,70" fill="none" stroke="rgba(133,77,14,0.4)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>`;
+  if(lv >= 4) cracks += `<path d="M45,25 L65,10" fill="none" stroke="#EAB308" stroke-width="6" stroke-linecap="round" opacity="0.6"/><path d="M45,25 L65,10" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round"/><path d="M55,95 L45,110" fill="none" stroke="#EAB308" stroke-width="6" stroke-linecap="round" opacity="0.6"/><path d="M55,95 L45,110" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round"/>`;
+
+  const shadowAnim = animClass === 'anim-float' ? 'anim-shadow-pulse' : '';
+
+  return `<div style="display:inline-block; position:relative; cursor:pointer;" onmouseenter="eggInteract(this)" ontouchstart="eggInteract(this)">
+    <div class="${animClass}" style="position:relative; z-index:2;">
+      <div class="egg-interact-wrapper">
+        <div class="pet-egg" style="--egg-size: ${size}px; background: ${bg}; --egg-shadow: ${c[3]};">
+          <svg width="100%" height="100%" viewBox="0 0 100 125" style="position:absolute;inset:0;pointer-events:none;z-index:2;">${cracks}</svg>
+        </div>
+      </div>
+    </div>
+    <div class="egg-shadow ${shadowAnim}"></div>
+  </div>`;
+}
+
+const EGG_REACTIONS = [
+  ['egg-wiggle-left',  500], ['egg-wiggle-right', 500], ['egg-bounce',       600],
+  ['egg-shy',          800], ['egg-run-left',     700], ['egg-run-right',    700], ['egg-spin',         600],
+];
+let eggReactCooldown = false;
+function eggInteract(container) {
+  if (eggReactCooldown) return;
+  const wrapper = container.querySelector('.egg-interact-wrapper');
+  if (!wrapper || wrapper.dataset.playing === "true") return;
+  
+  eggReactCooldown = true;
+  wrapper.dataset.playing = "true";
+  const roll = Math.random();
+  let reaction;
+  if (roll < 0.18) reaction = EGG_REACTIONS[4]; 
+  else if (roll < 0.36) reaction = EGG_REACTIONS[5]; 
+  else if (roll < 0.52) reaction = EGG_REACTIONS[3]; 
+  else if (roll < 0.68) reaction = EGG_REACTIONS[2]; 
+  else if (roll < 0.84) reaction = EGG_REACTIONS[0]; 
+  else reaction = EGG_REACTIONS[6]; 
+
+  wrapper.style.animation = 'none';
+  void wrapper.offsetWidth;
+  wrapper.style.animation = `${reaction[0]} ${reaction[1]/1000}s ease-out forwards`;
+
+  setTimeout(() => {
+    wrapper.dataset.playing = "false";
+    wrapper.style.animation = '';
+    eggReactCooldown = false;
+  }, reaction[1]);
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//  AUDIO & METRONOME
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 let audioCtx=null;
 function getCtx(){
@@ -262,23 +380,17 @@ function getCtx(){
   if(audioCtx.state==='suspended') audioCtx.resume();
   return audioCtx;
 }
-
-// Metronome
 let metroOn=false, metroIv=null, metroNext=0, metroBeat=0;
 function metroClick(t,accent){
   const ctx=getCtx(), o=ctx.createOscillator(), g=ctx.createGain();
   o.connect(g); g.connect(ctx.destination);
   o.frequency.value=accent?1200:800; o.type='sine';
-  g.gain.setValueAtTime(accent?.45:.28,t);
-  g.gain.exponentialRampToValueAtTime(.001,t+.08);
+  g.gain.setValueAtTime(accent?.45:.28,t); g.gain.exponentialRampToValueAtTime(.001,t+.08);
   o.start(t); o.stop(t+.08);
 }
 function metroTick(){
   const ctx=getCtx();
-  while(metroNext<ctx.currentTime+.1){
-    metroClick(metroNext,metroBeat%4===0);
-    metroNext+=60/S.settings.bpm; metroBeat++;
-  }
+  while(metroNext<ctx.currentTime+.1){ metroClick(metroNext,metroBeat%4===0); metroNext+=60/(S?.settings.bpm||120); metroBeat++; }
 }
 function startMetro(){
   const ctx=getCtx(); metroNext=ctx.currentTime+.05; metroBeat=0;
@@ -288,157 +400,26 @@ function stopMetro(){ clearInterval(metroIv); metroOn=false; metroBeat=0; }
 function toggleMetro(){ metroOn?stopMetro():startMetro(); refreshPractice(); }
 function restartMetro(){
   if(!metroOn) return;
-  clearInterval(metroIv);
-  const ctx=getCtx(); metroNext=ctx.currentTime+.05; metroBeat=0;
-  metroIv=setInterval(metroTick,25);
+  clearInterval(metroIv); const ctx=getCtx(); metroNext=ctx.currentTime+.05; metroBeat=0; metroIv=setInterval(metroTick,25);
 }
-
 function playChime(){
   try{
     const ctx=getCtx();
     [880,1100,1320].forEach((f,i)=>{
-      const o=ctx.createOscillator(),g=ctx.createGain();
-      o.connect(g); g.connect(ctx.destination); o.frequency.value=f; o.type='sine';
-      const t=ctx.currentTime+i*.12;
-      g.gain.setValueAtTime(0,t); g.gain.linearRampToValueAtTime(.3,t+.05);
-      g.gain.exponentialRampToValueAtTime(.001,t+.7); o.start(t); o.stop(t+.7);
+      const o=ctx.createOscillator(),g=ctx.createGain(); o.connect(g); g.connect(ctx.destination); o.frequency.value=f; o.type='sine';
+      const t=ctx.currentTime+i*.12; g.gain.setValueAtTime(0,t); g.gain.linearRampToValueAtTime(.3,t+.05); g.gain.exponentialRampToValueAtTime(.001,t+.7); o.start(t); o.stop(t+.7);
     });
   }catch(_){}
 }
 function playNoteSound(i){
   try{
-    const ctx=getCtx(), o=ctx.createOscillator(), g=ctx.createGain();
-    o.connect(g); g.connect(ctx.destination); o.frequency.value=NOTE_FREQS[i]; o.type='triangle';
-    g.gain.setValueAtTime(.35,ctx.currentTime);
-    g.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+.45);
-    o.start(ctx.currentTime); o.stop(ctx.currentTime+.45);
+    const ctx=getCtx(), o=ctx.createOscillator(), g=ctx.createGain(); o.connect(g); g.connect(ctx.destination); o.frequency.value=NOTE_FREQS[i]; o.type='triangle';
+    g.gain.setValueAtTime(.35,ctx.currentTime); g.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+.45); o.start(ctx.currentTime); o.stop(ctx.currentTime+.45);
   }catch(_){}
 }
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-//  ROUTER
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-let currentView = S.name?'home':'setup';
-function navigate(view){
-  if(currentView==='practice') stopPractice();
-  if(currentView==='game'&&gameState==='playing') endGame();
-  currentView=view; render();
-}
-
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-//  PRACTICE
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-let isPracticing=false, practiceTimer=null, practiceSeconds=0;
-let combo=0, postureTimeout=null, showPosture=false;
-
-// Partial refresh: only update inner HTML, keep timer ticking
-function refreshPractice(){
-  if(currentView!=='practice') return;
-  const el=document.getElementById('view-content');
-  if(el){ el.innerHTML=buildPractice(); afterPracticeRender(); }
-}
-
-function startPractice(){
-  isPracticing=true; recordDay(); schedulePosture();
-  practiceTimer=setInterval(()=>{
-    practiceSeconds++;
-    // Update only the timer element — no full re-render each second
-    const te=document.getElementById('pt');
-    if(te) te.textContent=fmtTime(practiceSeconds);
-    if(practiceSeconds%300===0){ S.totalMinutes+=5; addXp(5); }
-  },1000);
-  refreshPractice();
-}
-function stopPractice(){
-  if(!isPracticing&&!practiceTimer) return;
-  isPracticing=false; clearInterval(practiceTimer); practiceTimer=null;
-  clearTimeout(postureTimeout); showPosture=false;
-  if(metroOn) stopMetro();
-  save(); refreshPractice();
-}
-function togglePractice(){ isPracticing?stopPractice():startPractice(); }
-
-function schedulePosture(){
-  clearTimeout(postureTimeout);
-  if(!isPracticing) return;
-  postureTimeout=setTimeout(()=>{
-    if(!isPracticing) return;
-    showPosture=true; playChime(); refreshPractice();
-    setTimeout(()=>{
-      showPosture=false; combo++; addXp(combo*3);
-      schedulePosture(); refreshPractice();
-    },3500);
-  }, S.settings.checkInterval*1000);
-}
-
-function changeBpm(delta, abs){
-  if(abs!==undefined) S.settings.bpm=abs;
-  else S.settings.bpm=Math.max(40,Math.min(220,S.settings.bpm+delta));
-  save(); restartMetro(); refreshPractice();
-}
-
-function fmtTime(s){ return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0'); }
-
-// Sheet
-let sheetData=null, sheetName='';
-function loadSheet(e){
-  const f=e.target.files[0]; if(!f) return;
-  if(sheetData) URL.revokeObjectURL(sheetData.url);
-  sheetData={url:URL.createObjectURL(f),type:f.type}; sheetName=f.name;
-  refreshPractice();
-}
-function clearSheet(){
-  if(sheetData) URL.revokeObjectURL(sheetData.url);
-  sheetData=null; sheetName=''; refreshPractice();
-}
-
-// Camera
-let camOn=false, camStream=null;
-function toggleCamera(){
-  if(camOn){
-    camOn=false;
-    if(camStream){ camStream.getTracks().forEach(t=>t.stop()); camStream=null; }
-    refreshPractice();
-  } else {
-    navigator.mediaDevices.getUserMedia({video:{facingMode:'user'}})
-      .then(s=>{ camOn=true; camStream=s; refreshPractice();
-        setTimeout(()=>{ const v=document.getElementById('cam-video'); if(v) v.srcObject=s; },60); })
-      .catch(()=>alert('无法访问摄像头，请检查浏览器权限。'));
-  }
-}
-function afterPracticeRender(){
-  if(camOn&&camStream){ const v=document.getElementById('cam-video'); if(v) v.srcObject=camStream; }
-}
-
-// Hatch
-function doHatch(){
-  if(!eggMax()) return;
-  const pet=drawPet(S.streak);
-  S.eggXp=0; combo=0; S.collectedPets.push({id:pet.id,ts:Date.now()}); save();
-  showHatchModal(pet);
-}
-function showHatchModal(pet){
-  const labels={common:'普通级',rare:'✨ 稀有级',epic:'💫 史诗级',legend:'🌟 传说级！'};
-  const m=document.createElement('div'); m.className='modal-overlay';
-  m.innerHTML=`
-    <div class="anim-popin glass-dark" style="border-radius:28px;padding:34px;text-align:center;max-width:300px;width:100%;">
-      <div style="font-size:76px;margin-bottom:12px;" class="anim-float">${pet.emoji}</div>
-      <span class="rarity-${pet.rarity}" style="font-size:11px;font-weight:700;padding:3px 12px;border-radius:99px;display:inline-block;margin-bottom:12px;">${labels[pet.rarity]||''}</span>
-      <h2 class="fredoka" style="font-size:28px;color:#fff;margin-bottom:10px;">${pet.name}</h2>
-      <div style="background:rgba(255,255,255,.07);border-radius:14px;padding:14px;margin-bottom:18px;">
-        <div style="font-size:10px;color:rgba(255,255,255,.4);margin-bottom:3px;">战斗力</div>
-        <div class="fredoka" style="font-size:34px;color:${pet.color};">${pet.power}</div>
-      </div>
-      <button class="btn" onclick="this.closest('.modal-overlay').remove();navigate('home');"
-        style="width:100%;padding:14px;background:linear-gradient(135deg,#7c3aed,#db2777);color:#fff;font-size:15px;font-weight:800;border-radius:14px;">
-        太棒了！🏠
-      </button>
-    </div>`;
-  document.body.appendChild(m); playChime();
-}
-
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-//  GAME
+//  GAME LOGIC
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 let gameState='idle', gameSong=0;
 let gameScore=0, gameCombo=0, gameMaxCombo=0;
@@ -473,7 +454,7 @@ function spawnNote(lane){
   const lw=100/7;
   const el=document.createElement('div');
   el.id='gn-'+id; el.className='note-block';
-  el.style.cssText=`left:${(lane*lw+lw*.08).toFixed(2)}%;width:${(lw*.84).toFixed(2)}%;height:46px;top:0;--fd:${h+70}px;--fd-dur:${dur}s;background:${NOTE_COLORS[lane]};color:#fff;box-shadow:0 4px 14px ${NOTE_COLORS[lane]}77;`;
+  el.style.cssText=`left:${(lane*lw+lw*.08).toFixed(2)}%;width:${(lw*.84).toFixed(2)}%;height:46px;top:0;--fd:${h+70}px;--fd-dur:${dur}s;background:${NOTE_COLORS[lane]};color:#1c1917;box-shadow:0 4px 14px ${NOTE_COLORS[lane]}77;`;
   el.textContent=NOTE_NAMES[lane];
   fz.appendChild(el);
   gameLiveNotes.push({id,lane,el,hit:false});
@@ -486,7 +467,7 @@ function sweepMissed(){
     const r=n.el.getBoundingClientRect();
     if(r.top>bottom+12){
       n.el.remove(); gameCombo=0;
-      showJudgment('MISS','#6b7280',bottom-100); updateGameHUD(); return false;
+      showJudgment('MISS','#A8A29E',bottom-100); updateGameHUD(); return false;
     }
     return true;
   });
@@ -510,7 +491,7 @@ function hitLane(lane){
     setTimeout(()=>best.el.remove(),220);
     gameCombo++; if(gameCombo>gameMaxCombo) gameMaxCombo=gameCombo;
     gameScore+=100*Math.min(gameCombo,8);
-    showJudgment(bestDist<22?'PERFECT!':'GREAT', bestDist<22?'#fbbf24':'#34d399', fzR.bottom-120);
+    showJudgment(bestDist<22?'PERFECT!':'GREAT', bestDist<22?'#EC4899':'#EAB308', fzR.bottom-120);
     updateGameHUD();
   }
 }
@@ -534,93 +515,192 @@ function bindGameKeys(){
 function removeGameKeys(){ if(_gameKey){ window.removeEventListener('keydown',_gameKey); _gameKey=null; } }
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-//  VIEW BUILDERS
+//  ROUTER
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-function buildCracks(lv){
-  let p='';
-  if(lv>=2) p+=`<path d="M50,15 L47,35 L55,50" fill="none" stroke="#2d1b5e" stroke-width="3" stroke-linecap="round"/>`;
-  if(lv>=3) p+=`<path d="M55,50 L65,62 L59,80" fill="none" stroke="#2d1b5e" stroke-width="2.5" stroke-linecap="round"/>
-    <path d="M47,35 L32,43 L36,58" fill="none" stroke="#2d1b5e" stroke-width="2" stroke-linecap="round"/>`;
-  if(lv>=4) p+=`<path d="M50,15 L60,7" fill="none" stroke="#fbbf24" stroke-width="2.5" stroke-linecap="round"/>
-    <path d="M59,80 L54,93" fill="none" stroke="#fbbf24" stroke-width="2" stroke-linecap="round"/>`;
-  return `<svg viewBox="0 0 100 100" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;">${p}</svg>`;
+let currentView = AppStore.profiles.length > 0 ? 'profiles' : 'setup';
+function navigate(view){
+  if(currentView==='practice') stopPractice();
+  if(currentView==='game'&&gameState==='playing') endGame();
+  if(currentView==='pk') stopPK();
+  currentView=view; render();
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//  PRACTICE & UI VIEWS
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+let isPracticing=false, practiceTimer=null, practiceSeconds=0;
+let combo=0, postureTimeout=null, showPosture=false;
+let sheetData=null, sheetName='';
+let camOn=false, camStream=null;
+
+function refreshPractice(){ if(currentView==='practice'){ const el=document.getElementById('view-content'); if(el){ el.innerHTML=buildPractice(); afterPracticeRender(); } } }
+function startPractice(){
+  isPracticing=true; recordDay(); schedulePosture();
+  practiceTimer=setInterval(()=>{
+    practiceSeconds++; const te=document.getElementById('pt'); if(te) te.textContent=fmtTime(practiceSeconds);
+    if(practiceSeconds%300===0){ S.totalMinutes+=5; addXp(5); }
+  },1000);
+  refreshPractice();
+}
+function stopPractice(){
+  if(!isPracticing&&!practiceTimer) return;
+  isPracticing=false; clearInterval(practiceTimer); practiceTimer=null; clearTimeout(postureTimeout); showPosture=false;
+  if(metroOn) stopMetro();
+  save(); refreshPractice();
+}
+function togglePractice(){ isPracticing?stopPractice():startPractice(); }
+function schedulePosture(){
+  clearTimeout(postureTimeout); if(!isPracticing) return;
+  postureTimeout=setTimeout(()=>{
+    if(!isPracticing) return;
+    showPosture=true; playChime(); refreshPractice();
+    setTimeout(()=>{ showPosture=false; combo++; addXp(combo*3); schedulePosture(); refreshPractice(); },3500);
+  }, (S.settings.checkInterval||300)*1000);
+}
+function changeBpm(delta){ S.settings.bpm=Math.max(40,Math.min(220,S.settings.bpm+delta)); save(); restartMetro(); refreshPractice(); }
+function fmtTime(s){ return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0'); }
+function loadSheet(e){ const f=e.target.files[0]; if(!f) return; if(sheetData) URL.revokeObjectURL(sheetData.url); sheetData={url:URL.createObjectURL(f),type:f.type}; sheetName=f.name; refreshPractice(); }
+function clearSheet(){ if(sheetData) URL.revokeObjectURL(sheetData.url); sheetData=null; sheetName=''; refreshPractice(); }
+function toggleCamera(){
+  if(camOn){ camOn=false; if(camStream){ camStream.getTracks().forEach(t=>t.stop()); camStream=null; } refreshPractice(); }
+  else { navigator.mediaDevices.getUserMedia({video:{facingMode:'user'}}).then(s=>{ camOn=true; camStream=s; refreshPractice(); setTimeout(()=>{ const v=document.getElementById('cam-video'); if(v) v.srcObject=s; },60); }).catch(()=>alert('无法访问摄像头。')); }
+}
+function afterPracticeRender(){ if(camOn&&camStream){ const v=document.getElementById('cam-video'); if(v) v.srcObject=camStream; } }
+
+function doHatch(){
+  if(!eggMax() || !S) return;
+  const pet=drawPet(S.streak);
+  S.eggXp=0; combo=0; 
+  const ext = S.collectedPets.find(p=>p.id===pet.id);
+  if(ext) ext.count = (ext.count||1)+1; else S.collectedPets.push({id:pet.id,count:1,ts:Date.now()});
+  save(); showHatchModal(pet);
+}
+function showHatchModal(pet){
+  const labels={common:'普通级',rare:'✨ 稀有级',epic:'💫 史诗级',legend:'🌟 传说级！'};
+  const m=document.createElement('div'); m.className='modal-overlay';
+  m.innerHTML=`<div class="anim-popin glass-dark" style="border-radius:28px;padding:34px;text-align:center;max-width:300px;width:100%;">
+    <div style="font-size:76px;margin-bottom:12px;" class="anim-float">${pet.emoji}</div>
+    <span class="rarity-${pet.rarity}" style="font-size:11px;font-weight:700;padding:3px 12px;border-radius:99px;display:inline-block;margin-bottom:12px;">${labels[pet.rarity]||''}</span>
+    <h2 class="fredoka" style="font-size:28px;color:#854D0E;margin-bottom:10px;">${pet.name}</h2>
+    <div style="background:rgba(0,0,0,.03);border-radius:14px;padding:14px;margin-bottom:18px;">
+      <div style="font-size:10px;color:#B45309;margin-bottom:3px;">战斗力</div><div class="fredoka" style="font-size:34px;color:${pet.color};">${pet.power}</div>
+    </div>
+    <button class="btn" onclick="this.closest('.modal-overlay').remove();navigate('home');" style="width:100%;padding:14px;background:linear-gradient(135deg,#EAB308,#EC4899);color:#fff;font-size:15px;font-weight:800;border-radius:14px;">太棒了！🏠</button>
+  </div>`;
+  document.body.appendChild(m); playChime();
 }
 
 function buildSetup(){
   return `<div style="min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 24px;">
     <div style="text-align:center;margin-bottom:40px;">
-      <div style="font-size:88px;margin-bottom:14px;" class="anim-float">🥚</div>
-      <h1 class="fredoka" style="font-size:42px;background:linear-gradient(135deg,#a78bfa,#f472b6);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">练琴星球</h1>
-      <p style="color:rgba(255,255,255,.45);font-size:14px;margin-top:6px;">和宠物一起，让练琴变有趣</p>
+      <div style="margin-bottom:14px;">${buildEgg(0, 88, 'anim-float')}</div>
+      <h1 class="fredoka" style="font-size:42px;background:linear-gradient(135deg,#EAB308,#EC4899);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">练琴星球</h1>
+      <p style="color:#B45309;font-size:14px;margin-top:6px;">为新成员录入档案</p>
     </div>
     <div class="glass" style="width:100%;max-width:340px;padding:30px;border-radius:24px;">
-      <label style="display:block;font-size:11px;font-weight:700;color:rgba(255,255,255,.4);letter-spacing:.06em;margin-bottom:8px;">你的名字是？</label>
+      <label style="display:block;font-size:11px;font-weight:700;color:#854D0E;letter-spacing:.06em;margin-bottom:8px;">你的名字是？</label>
       <input id="sn" type="text" placeholder="输入名字" maxlength="12" autocomplete="off"
-        style="width:100%;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:14px;padding:14px 16px;font-size:18px;font-weight:700;color:#fff;outline:none;font-family:inherit;text-align:center;"
-        oninput="this.style.borderColor='#a78bfa'" onkeydown="if(event.key==='Enter')doSetup()">
-      <button class="btn" onclick="doSetup()" style="width:100%;margin-top:16px;padding:15px;border-radius:14px;background:linear-gradient(135deg,#7c3aed,#db2777);color:#fff;font-size:16px;font-weight:800;">
-        开始养宠物 🐣
+        style="width:100%;background:#FFFFFF;border:1px solid #FDE68A;border-radius:14px;padding:14px 16px;font-size:18px;font-weight:700;color:#854D0E;outline:none;font-family:inherit;text-align:center;"
+        oninput="this.style.borderColor='#EAB308'" onkeydown="if(event.key==='Enter')doSetup()">
+      <button class="btn" onclick="doSetup()" style="width:100%;margin-top:16px;padding:15px;border-radius:14px;background:linear-gradient(135deg,#EAB308,#EC4899);color:#fff;font-size:16px;font-weight:800;">
+        确定录入 🐣
       </button>
+      ${AppStore.profiles.length > 0 ? `<button class="btn" onclick="navigate('profiles')" style="width:100%;margin-top:12px;padding:12px;background:none;border:1px solid #FDE68A;color:#B45309;font-size:13px;border-radius:14px;">返回成员列表</button>` : ''}
     </div>
   </div>`;
 }
 function doSetup(){
   const v=document.getElementById('sn').value.trim(); if(!v) return;
-  S.name=v; save(); currentView='home'; render();
+  const p = createProfileData(v);
+  AppStore.profiles.push(p);
+  switchProfile(p.id);
+}
+
+function buildProfiles() {
+  let list = AppStore.profiles.map(p => {
+    let pLv = 0; for(let i=0;i<XP_LEVELS.length;i++) if(p.eggXp>=XP_LEVELS[i]) pLv=i;
+    let icon = EGG_STAGES[pLv].includes('满级') ? '✨' : '🥚';
+    return `<div onclick="switchProfile('${p.id}')" class="glass btn" style="display:flex;align-items:center;padding:16px 20px;gap:16px;width:100%;justify-content:flex-start;margin-bottom:12px;">
+      <div style="font-size:32px;background:rgba(255,255,255,0.8);width:56px;height:56px;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(236,72,153,0.15)">${icon}</div>
+      <div style="flex:1;text-align:left;">
+        <div style="font-size:18px;font-weight:800;color:#854D0E;">${esc(p.name)}</div>
+        <div style="font-size:11px;color:#A8A29E;margin-top:2px;">Lv.${pLv} · 战力 ${getProfilePower(p)}</div>
+      </div>
+      <div style="color:#EC4899;font-size:24px;">➔</div>
+    </div>`;
+  }).join('');
+
+  return `<div style="min-height:100vh;padding:40px 24px;display:flex;flex-direction:column;align-items:center;max-width:400px;margin:0 auto;">
+    <h2 class="fredoka" style="font-size:32px;color:#EAB308;margin-bottom:8px;">音乐家族</h2>
+    <p style="color:#B45309;font-size:13px;margin-bottom:30px;">请选择进入谁的练琴房间？</p>
+    <div style="width:100%;">${list}</div>
+    <button class="btn" onclick="navigate('setup')" style="width:100%;margin-top:12px;padding:16px;background:rgba(0,0,0,.04);border:2px dashed rgba(234,179,8,.3);color:#B45309;font-size:15px;border-radius:18px;">
+      + 录入新成员
+    </button>
+  </div>`;
+}
+function switchProfile(id) {
+  AppStore.activeId = id;
+  S = AppStore.profiles.find(p => p.id === id);
+  save(); navigate('home');
 }
 
 function buildHome(){
+  if(!S) return '';
   const lv=eggLevel(), pct=xpPct(), max=eggMax();
   const anim=EGG_ANIMS[lv]||'anim-float';
   const last=S.collectedPets.length?petById(S.collectedPets[S.collectedPets.length-1].id):null;
   const tip=TIPS[new Date().getDate()%TIPS.length];
   return `<div style="padding:20px 16px;">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
-      <div>
-        <p style="color:rgba(255,255,255,.4);font-size:11px;font-weight:700;">你好，</p>
-        <h2 class="fredoka" style="font-size:28px;">${esc(S.name)} 🎵</h2>
+      <div onclick="navigate('profiles')" style="cursor:pointer; display:flex; align-items:center; gap:8px;">
+        <div style="background:rgba(234,179,8,.1); border-radius:10px; width:36px; height:36px; display:flex; align-items:center; justify-content:center; font-size:18px;">👤</div>
+        <div>
+          <p style="color:#A8A29E;font-size:10px;font-weight:700;">切换档案 ▾</p>
+          <h2 class="fredoka" style="font-size:22px;line-height:1;color:#854D0E;">${esc(S.name)}</h2>
+        </div>
       </div>
-      <div style="background:rgba(251,191,36,.12);border:1px solid rgba(251,191,36,.3);border-radius:12px;padding:6px 14px;display:flex;align-items:center;gap:6px;">
-        <span>🔥</span><span style="font-weight:800;color:#fbbf24;font-size:14px;">${S.streak} 天连续</span>
+      <div style="background:#FCE7F3;border:1px solid #FBCFE8;border-radius:12px;padding:6px 14px;display:flex;align-items:center;gap:6px;">
+        <span>🔥</span><span style="font-weight:800;color:#DB2777;font-size:14px;">${S.streak} 天连续</span>
       </div>
     </div>
     <div class="glass anim-glowpulse" style="border-radius:26px;padding:26px;text-align:center;margin-bottom:14px;position:relative;overflow:hidden;">
-      <div style="position:absolute;top:-40px;right:-40px;width:130px;height:130px;border-radius:50%;background:radial-gradient(circle,rgba(167,139,250,.13),transparent);pointer-events:none;"></div>
-      <div class="${anim}" style="font-size:88px;line-height:1;margin-bottom:12px;display:inline-block;position:relative;">🥚${lv>=2?buildCracks(lv):''}</div>
-      <div class="fredoka" style="font-size:20px;color:#a78bfa;margin-bottom:2px;">${EGG_STAGES[lv]}</div>
-      <p style="color:rgba(255,255,255,.35);font-size:12px;margin-bottom:14px;">Lv.${lv} · ${S.eggXp} XP</p>
-      <div style="background:rgba(255,255,255,.07);border-radius:99px;height:8px;overflow:hidden;margin-bottom:5px;">
+      <div style="position:absolute;top:-40px;right:-40px;width:130px;height:130px;border-radius:50%;background:radial-gradient(circle,rgba(234,179,8,.1),transparent);pointer-events:none;"></div>
+      <div style="margin-bottom:12px;">${buildEgg(lv, 88, anim)}</div>
+      <div class="fredoka" style="font-size:20px;color:#EAB308;margin-bottom:2px;">${EGG_STAGES[lv]}</div>
+      <p style="color:#B45309;font-size:12px;margin-bottom:14px;">Lv.${lv} · ${S.eggXp} XP</p>
+      <div style="background:rgba(0,0,0,.05);border-radius:99px;height:8px;overflow:hidden;margin-bottom:5px;">
         <div class="progress-fill" style="width:${pct}%;"></div>
       </div>
-      <p style="font-size:11px;color:rgba(255,255,255,.3);">${max?'✨ 满级！去练琴房孵化吧':`还需 ${XP_LEVELS[lv+1]-S.eggXp} XP 升级`}</p>
-      ${max?`<button class="btn" onclick="navigate('practice')" style="margin-top:12px;padding:11px 26px;background:linear-gradient(135deg,#fbbf24,#f59e0b);color:#000;font-size:13px;font-weight:800;border-radius:12px;">✨ 去孵化！</button>`:''}
+      <p style="font-size:11px;color:#A8A29E;">${max?'✨ 满级！去练琴房孵化吧':`还需 ${XP_LEVELS[lv+1]-S.eggXp} XP 升级`}</p>
+      ${max?`<button class="btn" onclick="navigate('practice')" style="margin-top:12px;padding:11px 26px;background:linear-gradient(135deg,#EAB308,#EC4899);color:#fff;font-size:13px;font-weight:800;border-radius:12px;box-shadow:0 4px 12px rgba(236,72,153,.3);">✨ 去孵化！</button>`:''}
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">
       <div class="glass" style="border-radius:16px;padding:16px;cursor:pointer;" onclick="navigate('practice')">
         <div style="font-size:28px;margin-bottom:5px;">🎹</div>
-        <div style="font-weight:800;font-size:13px;">开始练琴</div>
-        <div style="font-size:10px;color:rgba(255,255,255,.35);margin-top:2px;">获得 XP</div>
+        <div style="font-weight:800;font-size:13px;color:#854D0E;">开始练琴</div>
+        <div style="font-size:10px;color:#B45309;margin-top:2px;">获得 XP</div>
       </div>
       <div class="glass" style="border-radius:16px;padding:16px;cursor:pointer;" onclick="navigate('game')">
         <div style="font-size:28px;margin-bottom:5px;">🎮</div>
-        <div style="font-weight:800;font-size:13px;">音符游戏</div>
-        <div style="font-size:10px;color:rgba(255,255,255,.35);margin-top:2px;">最高 ${S.gameHighScore} 分</div>
+        <div style="font-weight:800;font-size:13px;color:#854D0E;">音符游戏</div>
+        <div style="font-size:10px;color:#B45309;margin-top:2px;">最高 ${S.gameHighScore} 分</div>
       </div>
     </div>
     ${last?`
     <div class="glass" style="border-radius:16px;padding:14px;display:flex;align-items:center;gap:12px;margin-bottom:12px;">
       <div style="font-size:40px;flex-shrink:0;">${last.emoji}</div>
       <div style="flex:1;min-width:0;">
-        <div style="font-size:9px;font-weight:700;color:rgba(255,255,255,.4);margin-bottom:2px;">最新收集</div>
-        <div style="font-weight:800;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${last.name}</div>
+        <div style="font-size:9px;font-weight:700;color:#B45309;margin-bottom:2px;">最新收集</div>
+        <div style="font-weight:800;font-size:14px;color:#854D0E;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${last.name}</div>
         <span class="rarity-${last.rarity}" style="font-size:9px;font-weight:700;padding:2px 7px;border-radius:99px;display:inline-block;margin-top:3px;">${last.rarity.toUpperCase()}</span>
       </div>
-      <button class="btn" onclick="navigate('dex')" style="padding:7px 12px;background:rgba(167,139,250,.15);border:1px solid rgba(167,139,250,.3);color:#a78bfa;font-size:11px;border-radius:10px;">图鉴</button>
+      <button class="btn" onclick="navigate('dex')" style="padding:7px 12px;background:#FCE7F3;border:1px solid #FBCFE8;color:#DB2777;font-size:11px;border-radius:10px;">图鉴</button>
     </div>`:
-    `<div class="glass" style="border-radius:16px;padding:14px;text-align:center;margin-bottom:12px;"><p style="color:rgba(255,255,255,.3);font-size:12px;">还没有宠物，快去练琴孵化蛋吧！</p></div>`}
-    <div style="padding:12px 14px;border-radius:14px;background:rgba(52,211,153,.07);border:1px solid rgba(52,211,153,.18);">
-      <div style="font-size:10px;font-weight:700;color:#34d399;margin-bottom:3px;">💡 今日建议</div>
-      <div style="font-size:12px;color:rgba(255,255,255,.5);line-height:1.6;">${tip}</div>
+    `<div class="glass" style="border-radius:16px;padding:14px;text-align:center;margin-bottom:12px;"><p style="color:#B45309;font-size:12px;">还没有宠物，快去练琴孵化蛋吧！</p></div>`}
+    <div style="padding:12px 14px;border-radius:14px;background:#FEF3C7;border:1px solid #FDE68A;">
+      <div style="font-size:10px;font-weight:700;color:#D97706;margin-bottom:3px;">💡 今日建议</div>
+      <div style="font-size:12px;color:#A16207;line-height:1.6;">${tip}</div>
     </div>
   </div>`;
 }
@@ -629,45 +709,45 @@ function buildPractice(){
   const lv=eggLevel(), max=eggMax(), pct=xpPct(), anim=EGG_ANIMS[lv]||'anim-float';
   return `<div style="padding:16px;">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-      <h2 class="fredoka" style="font-size:22px;color:#a78bfa;">🎹 练琴房</h2>
-      ${combo>0?`<div style="background:rgba(251,191,36,.15);border:1px solid rgba(251,191,36,.3);border-radius:10px;padding:4px 12px;font-size:12px;font-weight:800;color:#fbbf24;">🔥 ${combo} 连击</div>`:''}
+      <h2 class="fredoka" style="font-size:22px;color:#EAB308;">🎹 练琴房</h2>
+      ${combo>0?`<div style="background:#FCE7F3;border:1px solid #FBCFE8;border-radius:10px;padding:4px 12px;font-size:12px;font-weight:800;color:#DB2777;">🔥 ${combo} 连击</div>`:''}
     </div>
     <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px;">
       <div class="glass" style="border-radius:14px;padding:11px;text-align:center;">
-        <div style="font-size:9px;color:rgba(255,255,255,.4);font-weight:700;letter-spacing:.04em;margin-bottom:2px;">本次时长</div>
-        <div class="fredoka" style="font-size:22px;" id="pt">${fmtTime(practiceSeconds)}</div>
+        <div style="font-size:9px;color:#B45309;font-weight:700;letter-spacing:.04em;margin-bottom:2px;">本次时长</div>
+        <div class="fredoka" style="font-size:22px;color:#854D0E;" id="pt">${fmtTime(practiceSeconds)}</div>
       </div>
       <div class="glass" style="border-radius:14px;padding:11px;text-align:center;">
-        <div style="font-size:9px;color:rgba(255,255,255,.4);font-weight:700;letter-spacing:.04em;margin-bottom:2px;">总分钟</div>
-        <div class="fredoka" style="font-size:22px;color:#a78bfa;">${S.totalMinutes}</div>
+        <div style="font-size:9px;color:#B45309;font-weight:700;letter-spacing:.04em;margin-bottom:2px;">总分钟</div>
+        <div class="fredoka" style="font-size:22px;color:#EAB308;">${S.totalMinutes}</div>
       </div>
       <div class="glass" style="border-radius:14px;padding:11px;text-align:center;">
-        <div style="font-size:9px;color:rgba(255,255,255,.4);font-weight:700;letter-spacing:.04em;margin-bottom:2px;">蛋 XP</div>
-        <div class="fredoka" style="font-size:22px;color:#fbbf24;">${S.eggXp}</div>
+        <div style="font-size:9px;color:#B45309;font-weight:700;letter-spacing:.04em;margin-bottom:2px;">蛋 XP</div>
+        <div class="fredoka" style="font-size:22px;color:#EC4899;">${S.eggXp}</div>
       </div>
     </div>
     <div style="margin-bottom:10px;">
-      <div style="display:flex;justify-content:space-between;font-size:9px;color:rgba(255,255,255,.3);margin-bottom:3px;">
+      <div style="display:flex;justify-content:space-between;font-size:9px;color:#B45309;margin-bottom:3px;">
         <span>Lv.${lv} ${EGG_STAGES[lv]}</span>
         <span>${max?'满级':`${S.eggXp}/${XP_LEVELS[lv+1]}`}</span>
       </div>
-      <div style="height:7px;background:rgba(255,255,255,.07);border-radius:99px;overflow:hidden;">
+      <div style="height:7px;background:rgba(0,0,0,.05);border-radius:99px;overflow:hidden;">
         <div class="progress-fill" style="width:${pct}%;"></div>
       </div>
     </div>
     <div class="glass" style="border-radius:16px;padding:11px 14px;margin-bottom:11px;display:flex;align-items:center;gap:8px;">
       <span style="font-size:16px;">🎵</span>
-      <button class="btn" onclick="changeBpm(-5)" style="width:30px;height:30px;background:rgba(255,255,255,.09);color:#fff;font-size:16px;border-radius:8px;flex-shrink:0;">−</button>
-      <div style="flex:1;text-align:center;"><span class="fredoka" style="font-size:20px;">${S.settings.bpm}</span><span style="font-size:9px;color:rgba(255,255,255,.35);margin-left:2px;">BPM</span></div>
-      <button class="btn" onclick="changeBpm(5)" style="width:30px;height:30px;background:rgba(255,255,255,.09);color:#fff;font-size:16px;border-radius:8px;flex-shrink:0;">+</button>
-      <button class="btn" onclick="toggleMetro()" style="padding:7px 11px;font-size:11px;font-weight:700;border-radius:10px;flex-shrink:0;background:${metroOn?'rgba(239,68,68,.2)':'rgba(167,139,250,.2)'};border:1px solid ${metroOn?'rgba(239,68,68,.35)':'rgba(167,139,250,.35)'};color:${metroOn?'#f87171':'#a78bfa'};">
+      <button class="btn" onclick="changeBpm(-5)" style="width:30px;height:30px;background:#FFFFFF;border:1px solid #FDE68A;color:#854D0E;font-size:16px;border-radius:8px;flex-shrink:0;box-shadow:0 2px 4px rgba(0,0,0,.02);">−</button>
+      <div style="flex:1;text-align:center;"><span class="fredoka" style="font-size:20px;color:#854D0E;">${S.settings.bpm}</span><span style="font-size:9px;color:#D97706;margin-left:2px;">BPM</span></div>
+      <button class="btn" onclick="changeBpm(5)" style="width:30px;height:30px;background:#FFFFFF;border:1px solid #FDE68A;color:#854D0E;font-size:16px;border-radius:8px;flex-shrink:0;box-shadow:0 2px 4px rgba(0,0,0,.02);">+</button>
+      <button class="btn" onclick="toggleMetro()" style="padding:7px 11px;font-size:11px;font-weight:700;border-radius:10px;flex-shrink:0;background:${metroOn?'#FEE2E2':'#FEF3C7'};border:1px solid ${metroOn?'#FCA5A5':'#FDE68A'};color:${metroOn?'#EF4444':'#D97706'};">
         ${metroOn?'⏹ 停':'▶ 节拍器'}
       </button>
     </div>
     <div style="margin-bottom:11px;">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
-        <span style="font-weight:700;font-size:12px;">📄 曲谱</span>
-        <label style="cursor:pointer;padding:5px 11px;border-radius:9px;background:rgba(167,139,250,.14);border:1px solid rgba(167,139,250,.3);font-size:10px;font-weight:700;color:#a78bfa;">
+        <span style="font-weight:700;font-size:12px;color:#854D0E;">📄 曲谱</span>
+        <label style="cursor:pointer;padding:5px 11px;border-radius:9px;background:#FEF3C7;border:1px solid #FDE68A;font-size:10px;font-weight:700;color:#D97706;">
           ${sheetData?'换一份':'+ 导入'}
           <input type="file" accept="image/*,application/pdf" style="display:none;" onchange="loadSheet(event)">
         </label>
@@ -675,48 +755,46 @@ function buildPractice(){
       ${sheetData
         ?`<div style="position:relative;border-radius:13px;overflow:hidden;height:190px;">
             ${sheetData.type.startsWith('image/')?`<img src="${sheetData.url}" style="width:100%;height:100%;object-fit:contain;background:#fff;">`:`<iframe src="${sheetData.url}" style="width:100%;height:100%;border:none;background:#fff;"></iframe>`}
-            <button class="btn" onclick="clearSheet()" style="position:absolute;top:6px;right:6px;padding:3px 9px;background:rgba(0,0,0,.6);color:#fff;border-radius:8px;font-size:10px;">✕</button>
-            <div style="position:absolute;top:6px;left:6px;background:rgba(0,0,0,.55);border-radius:7px;padding:2px 8px;font-size:9px;font-weight:700;color:#a78bfa;max-width:55%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${esc(sheetName)}</div>
+            <button class="btn" onclick="clearSheet()" style="position:absolute;top:6px;right:6px;padding:3px 9px;background:rgba(133,77,14,.6);color:#fff;border-radius:8px;font-size:10px;">✕</button>
+            <div style="position:absolute;top:6px;left:6px;background:rgba(255,255,255,.95);border-radius:7px;padding:2px 8px;font-size:9px;font-weight:700;color:#D97706;max-width:55%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;box-shadow:0 2px 4px rgba(0,0,0,.05);">${esc(sheetName)}</div>
           </div>`
-        :`<div style="height:64px;border-radius:13px;background:rgba(255,255,255,.03);border:2px dashed rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;gap:7px;">
-            <span style="font-size:16px;">🎼</span><span style="font-size:11px;color:rgba(255,255,255,.22);">导入曲谱图片或PDF，边看谱边练</span>
+        :`<div style="height:64px;border-radius:13px;background:rgba(0,0,0,.03);border:2px dashed rgba(0,0,0,.08);display:flex;align-items:center;justify-content:center;gap:7px;">
+            <span style="font-size:16px;">🎼</span><span style="font-size:11px;color:#B45309;">导入曲谱图片或PDF，边看谱边练</span>
           </div>`}
     </div>
     <div class="glass" style="border-radius:18px;padding:18px;text-align:center;margin-bottom:11px;">
       ${max
-        ?`<div style="font-size:50px;margin-bottom:8px;" class="anim-crack">🥚</div>
-           <p style="font-weight:800;color:#fbbf24;margin-bottom:10px;">✨ 蛋已满级！</p>
-           <button class="btn" onclick="doHatch()" style="width:100%;padding:14px;background:linear-gradient(135deg,#fbbf24,#f59e0b);color:#000;font-size:14px;font-weight:800;border-radius:15px;box-shadow:0 6px 18px rgba(251,191,36,.4);">开盲盒 🎁</button>`
-        :`<div style="font-size:50px;margin-bottom:8px;display:inline-block;position:relative;" class="${anim}">🥚${lv>=2?buildCracks(lv):''}</div>
+        ?`<div style="margin-bottom:8px;">${buildEgg(4, 60, 'anim-crack')}</div>
+           <p style="font-weight:800;color:#EC4899;margin-bottom:10px;">✨ 蛋已满级！</p>
+           <button class="btn" onclick="doHatch()" style="width:100%;padding:14px;background:linear-gradient(135deg,#EAB308,#EC4899);color:#fff;font-size:14px;font-weight:800;border-radius:15px;box-shadow:0 6px 18px rgba(236,72,153,.3);">开盲盒 🎁</button>`
+        :`<div style="margin-bottom:8px;">${buildEgg(lv, 60, anim)}</div>
            <button class="btn" onclick="togglePractice()"
              style="width:100%;padding:14px;border-radius:15px;font-size:15px;font-weight:800;
-               background:${isPracticing?'linear-gradient(135deg,#ef4444,#dc2626)':'linear-gradient(135deg,#34d399,#059669)'};
-               color:#fff;box-shadow:${isPracticing?'0 6px 18px rgba(239,68,68,.3)':'0 6px 18px rgba(52,211,153,.3)'};">
+               background:${isPracticing?'linear-gradient(135deg,#EF4444,#DC2626)':'linear-gradient(135deg,#EAB308,#EC4899)'};
+               color:#fff;box-shadow:${isPracticing?'0 6px 18px rgba(239,68,68,.3)':'0 6px 18px rgba(236,72,153,.3)'};">
              ${isPracticing?'⏸ 暂停练习':'▶ 专注练琴'}
            </button>
-           ${isPracticing?`<p style="margin-top:6px;font-size:10px;color:rgba(255,255,255,.28);">每5分钟 +5 XP · 手型检查通过获连击加成</p>`:''}`}
+           ${isPracticing?`<p style="margin-top:6px;font-size:10px;color:#B45309;">每5分钟 +5 XP · 手型检查通过获连击加成</p>`:''}`}
     </div>
     <div class="glass" style="border-radius:15px;overflow:hidden;">
       <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 13px;">
-        <span style="font-weight:700;font-size:12px;">📷 手型镜</span>
-        <button class="btn" onclick="toggleCamera()" style="padding:5px 11px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);font-size:10px;font-weight:700;color:rgba(255,255,255,.5);border-radius:8px;">${camOn?'关闭':'开启'}</button>
+        <span style="font-weight:700;font-size:12px;color:#854D0E;">📷 手型镜</span>
+        <button class="btn" onclick="toggleCamera()" style="padding:5px 11px;background:#FFFFFF;border:1px solid #FDE68A;font-size:10px;font-weight:700;color:#D97706;border-radius:8px;">${camOn?'关闭':'开启'}</button>
       </div>
       ${camOn
-        ?`<div style="height:180px;background:#000;"><video id="cam-video" autoplay playsinline muted style="width:100%;height:100%;object-fit:cover;transform:scaleX(-1);display:block;"></video></div>`
-        :`<div style="padding:8px 13px 12px;font-size:11px;color:rgba(255,255,255,.2);text-align:center;">开启后用余光检查手型和坐姿</div>`}
+        ?`<div style="height:180px;background:#FDE68A;"><video id="cam-video" autoplay playsinline muted style="width:100%;height:100%;object-fit:cover;transform:scaleX(-1);display:block;"></video></div>`
+        :`<div style="padding:8px 13px 12px;font-size:11px;color:#B45309;text-align:center;">开启后用余光检查手型和坐姿</div>`}
     </div>
-
-    <!-- AI 识谱入口 -->
-    <button class="btn" onclick="openAnalyzer()" style="width:100%;padding:13px;background:linear-gradient(135deg,rgba(5,150,105,.8),rgba(52,211,153,.8));color:#fff;font-size:13px;font-weight:800;border-radius:14px;gap:8px;margin-top:2px;">
+    
+    <button class="btn" onclick="openAnalyzer()" style="width:100%;padding:13px;background:linear-gradient(135deg,#EAB308,#EC4899);color:#fff;font-size:13px;font-weight:800;border-radius:14px;gap:8px;margin-top:2px;">
       🎼 AI 识谱助手 <span style="font-size:10px;opacity:.75;font-weight:600;">（拍照分析难点）</span>
     </button>
-
   </div>
   ${showPosture?`<div style="position:fixed;inset:0;z-index:90;pointer-events:none;display:flex;align-items:center;justify-content:center;">
-    <div class="anim-popin" style="background:rgba(220,38,38,.92);backdrop-filter:blur(12px);padding:18px 34px;border-radius:99px;text-align:center;border:3px solid rgba(255,255,255,.22);">
+    <div class="anim-popin" style="background:rgba(236,72,153,.92);backdrop-filter:blur(12px);padding:18px 34px;border-radius:99px;text-align:center;border:3px solid rgba(255,255,255,.3);color:#fff;">
       <div style="font-size:40px;">👀</div>
       <div style="font-size:19px;font-weight:900;margin-top:2px;">检查手型！</div>
-      <div style="font-size:11px;opacity:.75;margin-top:2px;">手心握苹果，手腕别紧绷</div>
+      <div style="font-size:11px;opacity:.8;margin-top:2px;">手心握苹果，手腕别紧绷</div>
     </div>
   </div>`:''}
   ${buildAnalyzerOverlay()}`;
@@ -724,72 +802,33 @@ function buildPractice(){
 
 function buildGameIdle(){
   return `<div style="padding:20px 16px;">
-    <h2 class="fredoka" style="font-size:22px;color:#f472b6;margin-bottom:4px;">🎮 音符雨</h2>
-    <p style="font-size:12px;color:rgba(255,255,255,.4);margin-bottom:18px;">音符落到底部时，点击对应彩色按键！</p>
+    <h2 class="fredoka" style="font-size:22px;color:#EC4899;margin-bottom:4px;">🎮 音符雨</h2>
+    <p style="font-size:12px;color:#B45309;margin-bottom:18px;">音符落到底部时，点击对应彩色按键！</p>
     <div class="glass" style="border-radius:16px;padding:16px;margin-bottom:16px;display:flex;align-items:center;gap:14px;">
       <div style="font-size:40px;">🏆</div>
-      <div><div style="font-size:10px;color:rgba(255,255,255,.4);font-weight:700;">历史最高分</div>
-        <div class="fredoka" style="font-size:32px;color:#fbbf24;">${S.gameHighScore}</div></div>
+      <div><div style="font-size:10px;color:#B45309;font-weight:700;">历史最高分</div>
+        <div class="fredoka" style="font-size:32px;color:#EC4899;">${S.gameHighScore}</div></div>
     </div>
     <div style="margin-bottom:16px;">
-      <div style="font-size:11px;font-weight:700;color:rgba(255,255,255,.45);margin-bottom:7px;">选择曲目</div>
+      <div style="font-size:11px;font-weight:700;color:#B45309;margin-bottom:7px;">选择曲目</div>
       ${SONGS.map((s,i)=>`
-        <div onclick="selectSong(${i})" style="padding:11px 13px;border-radius:12px;border:2px solid ${gameSong===i?'rgba(244,114,182,.5)':'rgba(255,255,255,.07)'};background:${gameSong===i?'rgba(244,114,182,.1)':'rgba(255,255,255,.03)'};margin-bottom:5px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;color:${gameSong===i?'#f472b6':'rgba(255,255,255,.6)'};font-size:13px;font-weight:700;">
+        <div onclick="selectSong(${i})" style="padding:11px 13px;border-radius:12px;border:2px solid ${gameSong===i?'#FBCFE8':'transparent'};background:${gameSong===i?'#FCE7F3':'#FFFFFF'};margin-bottom:5px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;color:${gameSong===i?'#DB2777':'#854D0E'};font-size:13px;font-weight:700;">
           <span>${s.name}</span>${gameSong===i?'<span>✓</span>':''}
         </div>`).join('')}
     </div>
-    <div style="padding:11px 13px;border-radius:12px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);margin-bottom:16px;">
-      <div style="font-size:10px;font-weight:700;color:rgba(255,255,255,.35);margin-bottom:5px;">🎮 玩法</div>
-      <div style="font-size:11px;color:rgba(255,255,255,.43);line-height:1.7;">音符从上方落下，到达底部时点击对应彩色按键。<br>连续命中增加连击倍率！得分结束后转为蛋 XP。<br>电脑键盘：A S D F G H J 对应七个音符键。</div>
+    <div style="padding:11px 13px;border-radius:12px;background:#FFFFFF;border:1px solid #FDE68A;margin-bottom:16px;">
+      <div style="font-size:10px;font-weight:700;color:#B45309;margin-bottom:5px;">🎮 玩法</div>
+      <div style="font-size:11px;color:#854D0E;line-height:1.7;">音符从上方落下，到达底部时点击对应彩色按键。<br>连续命中增加连击倍率！得分结束后转为蛋 XP。<br>电脑键盘：A S D F G H J 对应七个音符键。</div>
     </div>
-    <button class="btn" onclick="startGame()" style="width:100%;padding:16px;border-radius:16px;background:linear-gradient(135deg,#ec4899,#8b5cf6);color:#fff;font-size:16px;font-weight:800;box-shadow:0 8px 22px rgba(236,72,153,.35);">
-      开始游戏 🎵
-    </button>
+    <button class="btn" onclick="startGame()" style="width:100%;padding:16px;border-radius:16px;background:linear-gradient(135deg,#EAB308,#EC4899);color:#fff;font-size:16px;font-weight:800;box-shadow:0 8px 22px rgba(236,72,153,.3);">开始游戏 🎵</button>
   </div>`;
 }
-function buildGamePlaying(){
-  return `<div style="height:calc(100dvh - 80px - env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;overflow:hidden;">
-    <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 14px;flex-shrink:0;">
-      <div><div style="font-size:8px;color:rgba(255,255,255,.4);font-weight:700;">SCORE</div>
-        <div class="fredoka" style="font-size:26px;color:#fbbf24;" id="gscore">${gameScore}</div></div>
-      <div style="text-align:center;min-width:56px;">
-        <div class="fredoka" style="font-size:20px;color:#f472b6;" id="gcombo"></div></div>
-      <button class="btn" onclick="endGame()" style="padding:6px 12px;background:rgba(239,68,68,.2);border:1px solid rgba(239,68,68,.3);color:#f87171;font-size:11px;border-radius:9px;">结束</button>
-    </div>
-    <div id="fall-zone" style="flex:1;background:linear-gradient(to bottom,rgba(0,0,0,.15),rgba(0,0,0,.35));position:relative;overflow:hidden;">
-      ${NOTE_NAMES.map((_,i)=>`<div style="position:absolute;top:0;bottom:0;left:${(i/7*100).toFixed(1)}%;width:1px;background:rgba(255,255,255,.04);"></div>`).join('')}
-      <div style="position:absolute;bottom:0;left:0;right:0;height:88px;background:linear-gradient(to top,rgba(167,139,250,.1),transparent);border-top:1px solid rgba(167,139,250,.2);pointer-events:none;"></div>
-    </div>
-    <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:3px;padding:5px;flex-shrink:0;background:rgba(0,0,0,.3);">
-      ${NOTE_NAMES.map((name,i)=>`
-        <button id="hk-${i}" class="hit-key"
-          style="background:rgba(${hexRgb(NOTE_COLORS[i])},.13);border-color:rgba(${hexRgb(NOTE_COLORS[i])},.38);color:rgba(255,255,255,.55);height:52px;"
-          ontouchstart="hitLane(${i})" onmousedown="hitLane(${i})">
-          <span style="font-size:11px;">${name}</span>
-          <span style="font-size:8px;opacity:.45;">${KEY_LABELS[i]}</span>
-        </button>`).join('')}
-    </div>
-  </div>`;
-}
+
+function buildGamePlaying(){ return `<div style="height:calc(100dvh - 80px - env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;overflow:hidden;"><div style="display:flex;justify-content:space-between;align-items:center;padding:8px 14px;flex-shrink:0;"><div><div style="font-size:8px;color:#B45309;font-weight:700;">SCORE</div><div class="fredoka" style="font-size:26px;color:#EAB308;" id="gscore">${gameScore}</div></div><div style="text-align:center;min-width:56px;"><div class="fredoka" style="font-size:20px;color:#EC4899;" id="gcombo"></div></div><button class="btn" onclick="endGame()" style="padding:6px 12px;background:#FEE2E2;border:1px solid #FCA5A5;color:#EF4444;font-size:11px;border-radius:9px;">结束</button></div><div id="fall-zone" style="flex:1;background:linear-gradient(to bottom,rgba(0,0,0,.02),rgba(0,0,0,.06));position:relative;overflow:hidden;">${NOTE_NAMES.map((_,i)=>`<div style="position:absolute;top:0;bottom:0;left:${(i/7*100).toFixed(1)}%;width:1px;background:rgba(0,0,0,.04);"></div>`).join('')}<div style="position:absolute;bottom:0;left:0;right:0;height:88px;background:linear-gradient(to top,rgba(236,72,153,.1),transparent);border-top:1px solid rgba(236,72,153,.2);pointer-events:none;"></div></div><div style="display:grid;grid-template-columns:repeat(7,1fr);gap:3px;padding:5px;flex-shrink:0;background:rgba(255,255,255,.8);">${NOTE_NAMES.map((name,i)=>`<button id="hk-${i}" class="hit-key" style="background:rgba(${hexRgb(NOTE_COLORS[i])},.15);border-color:rgba(${hexRgb(NOTE_COLORS[i])},.4);color:#854D0E;height:52px;" ontouchstart="hitLane(${i})" onmousedown="hitLane(${i})"><span style="font-size:11px;font-weight:800;">${name}</span><span style="font-size:8px;opacity:.6;">${KEY_LABELS[i]}</span></button>`).join('')}</div></div>`; }
+
 function buildGameResult(){
   const hi=gameScore>=S.gameHighScore&&gameScore>0;
-  return `<div style="padding:24px;display:flex;flex-direction:column;align-items:center;min-height:60vh;justify-content:center;">
-    <div class="anim-popin" style="text-align:center;width:100%;max-width:300px;">
-      <div style="font-size:50px;margin-bottom:8px;">${hi?'🎉':'🎵'}</div>
-      <h2 class="fredoka" style="font-size:28px;color:${hi?'#fbbf24':'#a78bfa'};margin-bottom:18px;">${hi?'新记录！':'完成！'}</h2>
-      <div class="glass" style="border-radius:16px;padding:18px;margin-bottom:18px;">
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
-          ${[['本次得分','#fbbf24',gameScore,'30px'],['最大连击','#f472b6',gameMaxCombo+'×','30px'],['历史最高','rgba(255,255,255,.5)',S.gameHighScore,'24px'],['获得 XP','#a78bfa',Math.floor(gameScore/10),'24px']].map(([l,c,v,fs])=>`
-          <div><div style="font-size:9px;color:rgba(255,255,255,.38);margin-bottom:3px;">${l}</div>
-            <div class="fredoka" style="font-size:${fs};color:${c};">${v}</div></div>`).join('')}
-        </div>
-      </div>
-      <div style="display:flex;flex-direction:column;gap:8px;">
-        <button class="btn" onclick="startGame()" style="width:100%;padding:13px;background:linear-gradient(135deg,#ec4899,#8b5cf6);color:#fff;font-size:14px;font-weight:800;border-radius:14px;">再来一局 🎮</button>
-        <button class="btn" id="back-to-idle" style="width:100%;padding:11px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.5);font-size:12px;border-radius:14px;">返回选歌</button>
-      </div>
-    </div>
-  </div>`;
+  return `<div style="padding:24px;display:flex;flex-direction:column;align-items:center;min-height:60vh;justify-content:center;"><div class="anim-popin" style="text-align:center;width:100%;max-width:300px;"><div style="font-size:50px;margin-bottom:8px;">${hi?'🎉':'🎵'}</div><h2 class="fredoka" style="font-size:28px;color:${hi?'#EC4899':'#EAB308'};margin-bottom:18px;">${hi?'新记录！':'完成！'}</h2><div class="glass" style="border-radius:16px;padding:18px;margin-bottom:18px;"><div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">${[['本次得分','#EAB308',gameScore,'30px'],['最大连击','#EC4899',gameMaxCombo+'×','30px'],['历史最高','#D97706',S.gameHighScore,'24px'],['获得 XP','#DB2777',Math.floor(gameScore/10),'24px']].map(([l,c,v,fs])=>`<div><div style="font-size:9px;color:#B45309;margin-bottom:3px;">${l}</div><div class="fredoka" style="font-size:${fs};color:${c};">${v}</div></div>`).join('')}</div></div><div style="display:flex;flex-direction:column;gap:8px;"><button class="btn" onclick="startGame()" style="width:100%;padding:13px;background:linear-gradient(135deg,#EAB308,#EC4899);color:#fff;font-size:14px;font-weight:800;border-radius:14px;">再来一局 🎮</button><button class="btn" id="back-to-idle" style="width:100%;padding:11px;background:#FFFFFF;border:1px solid #FDE68A;color:#854D0E;font-size:12px;border-radius:14px;">返回选歌</button></div></div></div>`;
 }
 
 function buildDex(){
@@ -797,34 +836,101 @@ function buildDex(){
   const sections=[{label:'🌟 传说',key:'legend'},{label:'💫 史诗',key:'epic'},{label:'✨ 稀有',key:'rare'},{label:'🐾 普通',key:'common'}];
   return `<div style="padding:16px;">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:13px;">
-      <h2 class="fredoka" style="font-size:22px;color:#34d399;">📖 宠物图鉴</h2>
-      <span style="font-size:11px;color:rgba(255,255,255,.35);">${[...new Set(got)].length} / ${ALL_PETS.length}</span>
+      <h2 class="fredoka" style="font-size:22px;color:#EC4899;">📖 宠物图鉴</h2>
+      <span style="font-size:11px;color:#B45309;">${[...new Set(got)].length} / ${ALL_PETS.length}</span>
     </div>
     ${sections.map(sec=>`
     <div style="margin-bottom:16px;">
-      <div style="font-size:11px;font-weight:700;color:rgba(255,255,255,.42);margin-bottom:7px;">${sec.label}</div>
+      <div style="font-size:11px;font-weight:700;color:#B45309;margin-bottom:7px;">${sec.label}</div>
       <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;">
         ${PETS_R[sec.key].map(pet=>{
           const g=got.includes(pet.id), cnt=got.filter(id=>id===pet.id).length;
           return `<div style="border-radius:13px;padding:10px 6px;text-align:center;position:relative;
-            background:${g?`rgba(${hexRgb(pet.color)},.11)`:'rgba(255,255,255,.04)'};
-            border:1px solid ${g?`rgba(${hexRgb(pet.color)},.22)`:'rgba(255,255,255,.06)'};opacity:${g?1:.38};">
-            <div style="font-size:30px;margin-bottom:3px;${g?'':'filter:grayscale(1);'}">${g?pet.emoji:'❓'}</div>
-            <div style="font-size:9px;font-weight:700;color:rgba(255,255,255,${g?'.72':'.22'});line-height:1.3;">${g?pet.name:'???'}</div>
-            ${g?`<div style="font-size:8px;color:rgba(255,255,255,.28);margin-top:2px;">PWR ${pet.power}</div>`:''}
-            ${cnt>1?`<div style="position:absolute;top:3px;right:3px;background:rgba(251,191,36,.85);color:#000;border-radius:99px;width:14px;height:14px;font-size:8px;font-weight:800;display:flex;align-items:center;justify-content:center;">×${cnt}</div>`:''}
+            background:${g?'#FFFFFF':'rgba(0,0,0,.03)'};
+            border:1px solid ${g?'#FDE68A':'rgba(0,0,0,.05)'};opacity:${g?1:.6};">
+            <div style="font-size:30px;margin-bottom:3px;${g?'':'filter:grayscale(1) opacity(0.5);'}">${g?pet.emoji:'❓'}</div>
+            <div style="font-size:9px;font-weight:700;color:${g?'#854D0E':'#D97706'};line-height:1.3;">${g?pet.name:'???'}</div>
+            ${g?`<div style="font-size:8px;color:#D97706;margin-top:2px;">PWR ${pet.power}</div>`:''}
+            ${cnt>1?`<div style="position:absolute;top:3px;right:3px;background:#FCE7F3;color:#DB2777;border-radius:99px;width:14px;height:14px;font-size:8px;font-weight:800;display:flex;align-items:center;justify-content:center;">×${cnt}</div>`:''}
           </div>`;
         }).join('')}
       </div>
     </div>`).join('')}
-    <div style="text-align:center;padding:11px;border-radius:11px;background:rgba(255,255,255,.03);font-size:10px;color:rgba(255,255,255,.23);">连续练琴天数越多，获得稀有宠物概率越高 · 当前 ${S.streak} 天</div>
+    <div style="text-align:center;padding:11px;border-radius:11px;background:rgba(0,0,0,.03);font-size:10px;color:#B45309;">连续练琴天数越多，获得稀有宠物概率越高 · 当前 ${S.streak} 天</div>
+  </div>`;
+}
+
+let pkFighter1 = null, pkFighter2 = null, pkState = 'idle', pkWinner = null;
+function startPK() {
+  if (pkFighter1.id === pkFighter2.id) return alert("自己不能和自己打哦！");
+  pkState = 'fighting'; render();
+  setTimeout(() => {
+    const p1 = getProfilePower(pkFighter1); const p2 = getProfilePower(pkFighter2);
+    const score1 = p1 * (1 + Math.random() * 0.1); const score2 = p2 * (1 + Math.random() * 0.1);
+    pkWinner = score1 > score2 ? pkFighter1 : score2 > score1 ? pkFighter2 : null;
+    pkState = 'result'; render();
+  }, 2000);
+}
+function buildPKArena() {
+  if (AppStore.profiles.length < 2) {
+    return `<div style="padding:40px 24px;text-align:center;">
+      <div style="font-size:50px;margin-bottom:16px;">🏆</div>
+      <h2 class="fredoka" style="font-size:24px;color:#EC4899;margin-bottom:12px;">竞技场尚未开启</h2>
+      <p style="font-size:13px;color:#854D0E;margin-bottom:24px;">需要至少 2 个成员才能进行对战。<br>请点击左上角的“👤”头像返回，录入新成员。</p>
+    </div>`;
+  }
+  if (!pkFighter1 || !AppStore.profiles.find(p=>p.id===pkFighter1.id)) pkFighter1 = AppStore.profiles[0];
+  if (!pkFighter2 || !AppStore.profiles.find(p=>p.id===pkFighter2.id)) pkFighter2 = AppStore.profiles[1];
+
+  const renderCard = (fighter, selectId) => {
+    const power = getProfilePower(fighter);
+    let best = null;
+    if (fighter.collectedPets && fighter.collectedPets.length > 0) {
+      let arr = fighter.collectedPets.map(c => petById(c.id)).filter(Boolean);
+      arr.sort((a,b) => b.power - a.power);
+      best = arr[0];
+    }
+    const opts = AppStore.profiles.map(p => `<option value="${p.id}" ${p.id===fighter.id?'selected':''}>${esc(p.name)}</option>`).join('');
+    
+    return `<div class="glass" style="flex:1;padding:16px;text-align:center;border-radius:20px;">
+      <select id="${selectId}" style="width:100%;padding:8px;border-radius:10px;border:1px solid rgba(234,179,8,.2);font-weight:800;font-size:14px;color:#854D0E;margin-bottom:12px;background:rgba(255,255,255,.5);outline:none;">${opts}</select>
+      <div style="font-size:48px;height:70px;display:flex;align-items:center;justify-content:center;margin-bottom:8px;${pkState==='fighting'?'animation:egg-wiggle-left .3s infinite;':''}">${best?best.emoji:'🥚'}</div>
+      <div style="font-size:10px;color:#B45309;font-weight:700;">最强幻兽: ${best?best.name:'无'}</div>
+      <div style="background:rgba(0,0,0,.04);border-radius:12px;padding:8px;margin-top:12px;">
+        <div style="font-size:9px;color:#B45309;margin-bottom:2px;">总战力</div>
+        <div class="fredoka" style="font-size:24px;color:#EC4899;">${power}</div>
+      </div>
+    </div>`;
+  };
+
+  return `<div style="padding:20px 16px;">
+    <h2 class="fredoka" style="font-size:24px;color:#EC4899;text-align:center;margin-bottom:6px;">⚔️ 宠物竞技场</h2>
+    <p style="text-align:center;font-size:12px;color:#B45309;margin-bottom:24px;">用你们收集到的幻兽对决吧！</p>
+    
+    <div style="display:flex;gap:12px;align-items:center;margin-bottom:30px;">
+      ${renderCard(pkFighter1, 'sel-f1')}
+      <div class="fredoka" style="font-size:24px;color:#EAB308;">VS</div>
+      ${renderCard(pkFighter2, 'sel-f2')}
+    </div>
+
+    <div style="text-align:center;">
+      ${pkState === 'idle' ? 
+        `<button class="btn" onclick="startPK()" style="padding:16px 40px;background:linear-gradient(135deg,#EAB308,#EC4899);color:#fff;font-size:18px;font-weight:800;border-radius:18px;box-shadow:0 8px 24px rgba(236,72,153,.3);">开始对战 👊</button>` 
+        : pkState === 'fighting' ? 
+        `<div class="fredoka" style="font-size:24px;color:#EC4899;animation:glowpulse 1s infinite;">能量对撞中...</div>`
+        : `<div class="anim-popin">
+            <h3 class="fredoka" style="font-size:32px;color:#EAB308;margin-bottom:16px;">🏆 胜者: ${pkWinner ? esc(pkWinner.name) : '平局'}</h3>
+            <button class="btn" onclick="pkState='idle';render();" style="padding:10px 24px;background:none;border:2px solid #EAB308;color:#EAB308;border-radius:12px;">再来一局</button>
+           </div>`
+      }
+    </div>
   </div>`;
 }
 
 function buildStats(){
   const now=new Date(), y=now.getFullYear(), mo=now.getMonth(), td=now.getDate();
   const fd=new Date(y,mo,1).getDay(), dim=new Date(y,mo+1,0).getDate();
-  let cal=['日','一','二','三','四','五','六'].map(d=>`<div style="text-align:center;font-size:9px;font-weight:700;color:rgba(255,255,255,.22);">${d}</div>`).join('');
+  let cal=['日','一','二','三','四','五','六'].map(d=>`<div style="text-align:center;font-size:9px;font-weight:700;color:#B45309;">${d}</div>`).join('');
   for(let i=0;i<fd;i++) cal+=`<div class="cal-day cal-empty"></div>`;
   for(let d=1;d<=dim;d++){
     const ds=`${y}-${String(mo+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
@@ -838,35 +944,41 @@ function buildStats(){
     ['获得史诗宠物',S.collectedPets.some(p=>['epic','legend'].includes(petById(p.id)?.rarity))],
   ];
   return `<div style="padding:16px;">
-    <h2 class="fredoka" style="font-size:22px;color:#60a5fa;margin-bottom:13px;">📊 练琴记录</h2>
+    <h2 class="fredoka" style="font-size:22px;color:#EC4899;margin-bottom:13px;">📊 练琴记录</h2>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:13px;">
-      ${[['🔥','#fbbf24',S.streak,'连续天数'],['⏱','#60a5fa',S.totalMinutes,'累计分钟'],['🏆','#f472b6',S.gameHighScore,'游戏最高'],['🐾','#34d399',S.collectedPets.length,'收集宠物']].map(([ico,col,val,lab])=>`
+      ${[['🔥','#EAB308',S.streak,'连续天数'],['⏱','#EC4899',S.totalMinutes,'累计分钟'],['🏆','#DB2777',S.gameHighScore,'游戏最高'],['🐾','#EAB308',S.collectedPets.length,'收集宠物']].map(([ico,col,val,lab])=>`
       <div class="glass" style="border-radius:15px;padding:14px;text-align:center;">
         <div style="font-size:26px;margin-bottom:3px;">${ico}</div>
         <div class="fredoka" style="font-size:28px;color:${col};">${val}</div>
-        <div style="font-size:9px;color:rgba(255,255,255,.33);font-weight:700;">${lab}</div>
+        <div style="font-size:9px;color:#B45309;font-weight:700;">${lab}</div>
       </div>`).join('')}
     </div>
     <div class="glass" style="border-radius:15px;padding:13px;margin-bottom:12px;">
-      <div style="font-size:11px;font-weight:700;color:rgba(255,255,255,.45);margin-bottom:9px;">📅 本月打卡</div>
+      <div style="font-size:11px;font-weight:700;color:#B45309;margin-bottom:9px;">📅 本月打卡</div>
       <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px;">${cal}</div>
     </div>
     <div class="glass" style="border-radius:15px;padding:13px;margin-bottom:13px;">
-      <div style="font-size:11px;font-weight:700;color:rgba(255,255,255,.45);margin-bottom:9px;">🎯 成就</div>
-      ${ms.map(([l,d])=>`<div style="display:flex;align-items:center;gap:9px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.05);">
+      <div style="font-size:11px;font-weight:700;color:#B45309;margin-bottom:9px;">🎯 成就</div>
+      ${ms.map(([l,d])=>`<div style="display:flex;align-items:center;gap:9px;padding:6px 0;border-bottom:1px solid #FEF3C7;">
         <span style="font-size:13px;">${d?'✅':'⬜'}</span>
-        <span style="font-size:11px;font-weight:600;color:rgba(255,255,255,${d?'.72':'.27'});">${l}</span>
+        <span style="font-size:11px;font-weight:600;color:${d?'#854D0E':'#D97706'};">${l}</span>
       </div>`).join('')}
     </div>
     <div style="text-align:center;">
-      <button class="btn" id="reset-btn" style="padding:8px 18px;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.2);color:#f87171;font-size:11px;border-radius:9px;">重置所有数据</button>
+      <button class="btn" id="reset-btn" style="padding:8px 18px;background:#FEE2E2;border:1px solid #FCA5A5;color:#EF4444;font-size:11px;border-radius:9px;">重置所有数据</button>
     </div>
   </div>`;
 }
 
 function buildTabBar(){
-  if(currentView==='setup') return '';
-  const tabs=[{id:'home',icon:'🏠',label:'主页'},{id:'practice',icon:'🎹',label:'练琴'},{id:'game',icon:'🎮',label:'音游'},{id:'dex',icon:'📖',label:'图鉴'},{id:'stats',icon:'📊',label:'记录'}];
+  if(currentView==='setup' || currentView==='profiles') return '';
+  const tabs=[
+    {id:'home',icon:'🏠',label:'主页'},
+    {id:'practice',icon:'🎹',label:'练琴'},
+    {id:'game',icon:'🎮',label:'音游'},
+    {id:'dex',icon:'📖',label:'图鉴'},
+    {id:'pk',icon:'⚔️',label:'竞技'}
+  ];
   return `<div class="tab-inner">${tabs.map(t=>`<div class="tab-item ${currentView===t.id?'active':''}" onclick="navigate('${t.id}')"><span class="tab-icon">${t.icon}</span><span class="tab-label">${t.label}</span></div>`).join('')}</div>`;
 }
 
@@ -877,7 +989,9 @@ function render(){
   const vc=document.getElementById('view-content');
   const tb=document.getElementById('tab-bar');
   if(currentView==='setup'){ vc.innerHTML=buildSetup(); tb.innerHTML=''; return; }
-  const map={home:buildHome, practice:buildPractice, dex:buildDex, stats:buildStats,
+  if(currentView==='profiles'){ vc.innerHTML=buildProfiles(); tb.innerHTML=''; return; }
+  
+  const map={home:buildHome, practice:buildPractice, dex:buildDex, pk:buildPKArena, stats:buildStats,
     game:()=>gameState==='playing'?buildGamePlaying():gameState==='result'?buildGameResult():buildGameIdle()};
   vc.innerHTML=(map[currentView]||buildHome)();
   tb.innerHTML=buildTabBar();
@@ -888,12 +1002,14 @@ function afterRender(){
   if(currentView==='practice') afterPracticeRender();
   if(currentView==='game'){
     if(gameState==='playing') bindGameKeys();
-    // "返回选歌" button — safe event binding, not inline onclick for gameState mutation
     const backBtn=document.getElementById('back-to-idle');
     if(backBtn) backBtn.addEventListener('click',()=>{ gameState='idle'; render(); });
-    // reset button in stats
-    const resetBtn=document.getElementById('reset-btn');
-    if(resetBtn) resetBtn.addEventListener('click',()=>{ if(confirm('确定要清空所有数据？')) resetAll(); });
+  }
+  if(currentView==='pk') {
+    const s1 = document.getElementById('sel-f1');
+    const s2 = document.getElementById('sel-f2');
+    if(s1) s1.addEventListener('change', (e) => { pkFighter1 = AppStore.profiles.find(p=>p.id===e.target.value); render(); });
+    if(s2) s2.addEventListener('change', (e) => { pkFighter2 = AppStore.profiles.find(p=>p.id===e.target.value); render(); });
   }
   if(currentView==='stats'){
     const resetBtn=document.getElementById('reset-btn');
@@ -901,63 +1017,54 @@ function afterRender(){
   }
 }
 
+function stopPK() { pkState = 'idle'; }
+
 function resetAll(){
   stopPractice(); if(metroOn) stopMetro();
   if(camStream){ camStream.getTracks().forEach(t=>t.stop()); camStream=null; camOn=false; }
-  localStorage.removeItem('piano_pet_v3'); S=defaultState();
+  localStorage.removeItem('piano_pet_v4_multi'); 
+  AppStore = { profiles: [], activeId: null }; S = null;
   practiceSeconds=0; combo=0; sheetData=null; sheetName='';
   gameState='idle'; currentView='setup'; render();
 }
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 //  AI 识谱 (Gemini Vision — 通过 /api/analyze 代理)
-//  Key 存在 Vercel 环境变量中，前端不持有任何密钥
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 let analyzerState = 'idle'; // idle | capturing | analyzing | done | error
 let analyzerResult = '';
 let analyzerStream = null;
 
 function openAnalyzer(){
-  analyzerState = 'capturing';
-  analyzerResult = '';
-  refreshPractice();
+  analyzerState = 'capturing'; analyzerResult = ''; refreshPractice();
   setTimeout(()=>{
-    const v = document.getElementById('analyzer-video');
-    if(!v) return;
+    const v = document.getElementById('analyzer-video'); if(!v) return;
     navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: 'environment' } } })
       .then(s => { analyzerStream = s; v.srcObject = s; })
       .catch(()=>{ analyzerState='error'; analyzerResult='无法访问摄像头，请检查权限。'; refreshPractice(); });
   }, 80);
 }
-
 function closeAnalyzer(){
   if(analyzerStream){ analyzerStream.getTracks().forEach(t=>t.stop()); analyzerStream=null; }
-  analyzerState = 'idle'; analyzerResult = '';
-  refreshPractice();
+  analyzerState = 'idle'; analyzerResult = ''; refreshPractice();
 }
-
 async function captureAndAnalyze(){
-  const v = document.getElementById('analyzer-video');
-  const c = document.getElementById('analyzer-canvas');
+  const v = document.getElementById('analyzer-video'); const c = document.getElementById('analyzer-canvas');
   if(!v || !c) return;
-  c.width = v.videoWidth || 640; c.height = v.videoHeight || 480;
-  c.getContext('2d').drawImage(v, 0, 0, c.width, c.height);
+  c.width = v.videoWidth || 640; c.height = v.videoHeight || 480; c.getContext('2d').drawImage(v, 0, 0, c.width, c.height);
   const b64 = c.toDataURL('image/jpeg', 0.85).split(',')[1];
-
   if(analyzerStream){ analyzerStream.getTracks().forEach(t=>t.stop()); analyzerStream=null; }
   analyzerState = 'analyzing'; refreshPractice();
 
   try {
     const resp = await fetch('/api/analyze', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ contents:[{ parts:[
         { text:`你是一个耐心温柔的儿童钢琴老师。请分析这张钢琴乐谱的照片，用10岁孩子能懂的语言，分点说明：
 1. 调号和拍号是什么，用通俗的话解释
 2. 这首曲子的情绪和弹奏感觉
 3. 有哪2-3个需要特别注意的难点（比如跨手、连线、快速音群）
 4. 给孩子一句鼓励的话
-
 如果照片里没有清晰的五线谱，请温和地说明并请孩子重新拍摄。回答请简洁，不超过150字。` },
         { inlineData:{ mimeType:'image/jpeg', data:b64 } }
       ]}]}),
@@ -966,70 +1073,31 @@ async function captureAndAnalyze(){
     if(!resp.ok) throw new Error(data.error || `HTTP ${resp.status}`);
     analyzerResult = data.candidates?.[0]?.content?.parts?.[0]?.text || '分析失败，请重试。';
     analyzerState = 'done';
-  } catch(e) {
-    analyzerResult = `出错了：${e.message}`;
-    analyzerState = 'error';
-  }
+  } catch(e) { analyzerResult = `出错了：${e.message}`; analyzerState = 'error'; }
   refreshPractice();
 }
 
 function buildAnalyzerOverlay(){
   if(analyzerState === 'idle') return '';
-  const isCapturing = analyzerState === 'capturing';
-  const isAnalyzing = analyzerState === 'analyzing';
-  const isDone      = analyzerState === 'done' || analyzerState === 'error';
-  return `
-  <div style="position:fixed;inset:0;z-index:95;background:rgba(10,6,25,.97);display:flex;flex-direction:column;">
-    <div style="display:flex;justify-content:space-between;align-items:center;padding:16px;flex-shrink:0;border-bottom:1px solid rgba(255,255,255,.08);">
-      <div>
-        <div class="fredoka" style="font-size:18px;color:#34d399;">🎼 AI 识谱助手</div>
-        <div style="font-size:11px;color:rgba(255,255,255,.35);">由 Gemini 驱动</div>
-      </div>
-      <button class="btn" onclick="closeAnalyzer()" style="padding:8px 14px;background:rgba(255,255,255,.08);color:rgba(255,255,255,.6);font-size:12px;border-radius:10px;">✕ 关闭</button>
+  const isCapturing = analyzerState === 'capturing', isAnalyzing = analyzerState === 'analyzing', isDone = analyzerState === 'done' || analyzerState === 'error';
+  return `<div style="position:fixed;inset:0;z-index:95;background:rgba(255,251,235,.97);display:flex;flex-direction:column;">
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:16px;flex-shrink:0;border-bottom:1px solid rgba(0,0,0,.06);">
+      <div><div class="fredoka" style="font-size:18px;color:#EC4899;">🎼 AI 识谱助手</div><div style="font-size:11px;color:#B45309;">由 Gemini 驱动</div></div>
+      <button class="btn" onclick="closeAnalyzer()" style="padding:8px 14px;background:#FEF3C7;color:#854D0E;font-size:12px;border-radius:10px;">✕ 关闭</button>
     </div>
     <div style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:14px;">
-      ${isCapturing ? `
-        <div style="position:relative;border-radius:16px;overflow:hidden;background:#000;aspect-ratio:4/3;flex-shrink:0;">
+      ${isCapturing ? `<div style="position:relative;border-radius:16px;overflow:hidden;background:#FDE68A;aspect-ratio:4/3;flex-shrink:0;">
           <video id="analyzer-video" autoplay playsinline muted style="width:100%;height:100%;object-fit:cover;display:block;"></video>
-          <div style="position:absolute;inset:12%;border:2px solid rgba(52,211,153,.6);border-radius:8px;pointer-events:none;"></div>
-          <div style="position:absolute;bottom:12px;left:0;right:0;text-align:center;font-size:11px;color:rgba(255,255,255,.5);">将五线谱置于框内，光线充足效果更好</div>
-        </div>
-        <canvas id="analyzer-canvas" style="display:none;"></canvas>
-        <button class="btn" onclick="captureAndAnalyze()" style="width:100%;padding:15px;background:linear-gradient(135deg,#059669,#34d399);color:#fff;font-size:15px;font-weight:800;border-radius:14px;">
-          📸 拍照并分析
-        </button>` : ''}
-      ${isAnalyzing ? `
-        <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:40px 0;">
-          <div style="font-size:48px;" class="anim-float">🤔</div>
-          <div style="font-size:15px;font-weight:700;color:#34d399;">AI 老师正在分析中...</div>
-          <div style="font-size:12px;color:rgba(255,255,255,.35);">请稍候几秒</div>
-        </div>` : ''}
-      ${isDone ? `
-        <div style="background:rgba(52,211,153,.08);border:1px solid rgba(52,211,153,.2);border-radius:16px;padding:18px;">
-          <div style="font-size:11px;font-weight:700;color:#34d399;margin-bottom:10px;">📋 分析结果</div>
-          <div style="font-size:13px;color:rgba(255,255,255,.8);line-height:1.8;white-space:pre-wrap;">${esc(analyzerResult)}</div>
-        </div>
-        <div style="display:flex;gap:8px;">
-          <button class="btn" onclick="openAnalyzer();" style="flex:1;padding:13px;background:rgba(52,211,153,.15);border:1px solid rgba(52,211,153,.3);color:#34d399;font-size:13px;border-radius:12px;">🔄 重新拍摄</button>
-          <button class="btn" onclick="closeAnalyzer();" style="flex:1;padding:13px;background:rgba(167,139,250,.15);border:1px solid rgba(167,139,250,.3);color:#a78bfa;font-size:13px;border-radius:12px;">✓ 开始练琴</button>
-        </div>` : ''}
-    </div>
-  </div>`;
+          <div style="position:absolute;inset:12%;border:2px solid rgba(236,72,153,.6);border-radius:8px;pointer-events:none;"></div>
+          <div style="position:absolute;bottom:12px;left:0;right:0;text-align:center;font-size:11px;color:#B45309;">将五线谱置于框内，光线充足效果更好</div>
+        </div><canvas id="analyzer-canvas" style="display:none;"></canvas>
+        <button class="btn" onclick="captureAndAnalyze()" style="width:100%;padding:15px;background:linear-gradient(135deg,#EAB308,#EC4899);color:#fff;font-size:15px;font-weight:800;border-radius:14px;">📸 拍照并分析</button>` : ''}
+      ${isAnalyzing ? `<div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:40px 0;"><div style="font-size:48px;" class="anim-float">🤔</div><div style="font-size:15px;font-weight:700;color:#EC4899;">AI 老师正在分析中...</div><div style="font-size:12px;color:#B45309;">请稍候几秒</div></div>` : ''}
+      ${isDone ? `<div style="background:#FCE7F3;border:1px solid #FBCFE8;border-radius:16px;padding:18px;"><div style="font-size:11px;font-weight:700;color:#EC4899;margin-bottom:10px;">📋 分析结果</div><div style="font-size:13px;color:#854D0E;line-height:1.8;white-space:pre-wrap;">${esc(analyzerResult)}</div></div><div style="display:flex;gap:8px;"><button class="btn" onclick="openAnalyzer();" style="flex:1;padding:13px;background:#FFFFFF;border:1px solid #FDE68A;color:#B45309;font-size:13px;border-radius:12px;">🔄 重新拍摄</button><button class="btn" onclick="closeAnalyzer();" style="flex:1;padding:13px;background:#FCE7F3;border:1px solid #FBCFE8;color:#DB2777;font-size:13px;border-radius:12px;">✓ 开始练琴</button></div>` : ''}
+    </div></div>`;
 }
 
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-//  GLOBAL BINDINGS
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Object.assign(window,{
-  navigate, doSetup, togglePractice, changeBpm, toggleMetro,
-  toggleCamera, loadSheet, clearSheet, doHatch,
-  selectSong, startGame, endGame, hitLane,
-  openAnalyzer, closeAnalyzer, captureAndAnalyze,
-});
-
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-//  BOOT
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Object.assign(window,{ navigate, doSetup, togglePractice, changeBpm, toggleMetro, toggleCamera, loadSheet, clearSheet, doHatch, selectSong, startGame, endGame, hitLane, openAnalyzer, closeAnalyzer, captureAndAnalyze, eggInteract, switchProfile, startPK });
 render();
 </script>
 </body>
