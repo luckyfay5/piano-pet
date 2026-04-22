@@ -1145,20 +1145,36 @@ async function captureAndAnalyze(){
     const resp = await fetch('/.netlify/functions/analyze', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ contents:[{ parts:[
-        { text:`你是一个耐心温柔的儿童钢琴老师。请分析这张钢琴乐谱的照片，用10岁孩子能懂的语言，分点说明：
-1. 调号和拍号是什么，用通俗的话解释
-2. 这首曲子的情绪和弹奏感觉
-3. 有哪2-3个需要特别注意的难点（比如跨手、连线、快速音群）
-4. 给孩子一句鼓励的话
-如果照片里没有清晰的五线谱，请温和地说明并请孩子重新拍摄。回答请简洁，不超过150字。` },
+        { text:`你是一个耐心温柔的儿童钢琴老师。请分析这张钢琴乐谱的照片，用10岁孩子能懂的语言，分点说明：\n1. 调号和拍号是什么，用通俗的话解释\n2. 这首曲子的情绪和弹奏感觉\n3. 有哪2-3个需要特别注意的难点（比如跨手、连线、快速音群）\n4. 给孩子一句鼓励的话\n如果照片里没有清晰的五线谱，请温和地说明并请孩子重新拍摄。回答请简洁，不超过150字。` },
         { inlineData:{ mimeType:'image/jpeg', data:b64 } }
       ]}]}),
+    }).catch(err => {
+        throw new Error(`网络连接失败或后端接口不可达: ${err.message}`);
     });
-    const data = await resp.json();
-    if(!resp.ok) throw new Error(data.error || `HTTP ${resp.status}`);
-    analyzerResult = data.candidates?.[0]?.content?.parts?.[0]?.text || '分析失败，请重试。';
+
+    // 优先按纯文本读取，避免后端返回 HTML 错误页时 json() 解析崩溃
+    const rawText = await resp.text();
+    let data;
+    try {
+        data = JSON.parse(rawText);
+    } catch (parseErr) {
+        throw new Error(`服务器响应格式异常 (HTTP ${resp.status}): \n${rawText.substring(0, 150)}...`);
+    }
+
+    if(!resp.ok) {
+      let errMsg = data.error;
+      if (data.error && typeof data.error === 'object') {
+        errMsg = data.error.message || JSON.stringify(data.error);
+      }
+      throw new Error(`API 请求失败 (HTTP ${resp.status}): ${errMsg || '未知错误'}`);
+    }
+    
+    analyzerResult = data.candidates?.[0]?.content?.parts?.[0]?.text || '分析失败，API返回的数据中没有包含文本内容。';
     analyzerState = 'done';
-  } catch(e) { analyzerResult = `出错了：${e.message}`; analyzerState = 'error'; }
+  } catch(e) { 
+    analyzerResult = `出错了：\n${e.message}\n\n💡 排查建议：\n1. 若提示 API 请求失败，请检查 Netlify 的 GEMINI_API_KEY 是否填错或过期。\n2. 若提示响应格式异常 (HTTP 404)，说明找不到后端文件，请检查 GitHub 中是否正确创建了 netlify/functions/analyze.js 文件。`; 
+    analyzerState = 'error'; 
+  }
   window.refreshPractice();
 }
 
