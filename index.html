@@ -293,7 +293,7 @@ async function captureAndAnalyze(){
   try{
     const resp=await fetch('/api/analyze',{method:'POST',headers:{'Content-Type':'application/json'},
       body:JSON.stringify({
-        model: "qwen3-vl-plus", // 使用通义千问视觉大模型
+        model: "qwen-vl-max", // 使用通义千问视觉大模型
         messages: [{
           role: "user",
           content: [
