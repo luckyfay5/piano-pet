@@ -1,25 +1,28 @@
 export async function onRequestPost(context) {
-  // context.request 包含了前端发来的请求
-  // context.env 包含了我们在 Cloudflare 后台设置的环境变量
   const request = context.request;
   const env = context.env;
 
   try {
-    const apiKey = env.GEMINI_API_KEY;
+    // 读取我们在 Cloudflare 后台新配置的通义千问 API Key
+    const apiKey = env.DASHSCOPE_API_KEY;
     
     if (!apiKey) {
-      return new Response(JSON.stringify({ error: '后端环境变量 GEMINI_API_KEY 未配置' }), {
+      return new Response(JSON.stringify({ error: '后端环境变量 DASHSCOPE_API_KEY 未配置' }), {
         status: 500,
         headers: { 'Content-Type': 'application/json' }
       });
     }
 
-    // 获取前端传来的 JSON 数据
+    // 获取前端发来的兼容 OpenAI 格式的请求体
     const bodyText = await request.text();
     
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
+    // 调用通义千问的视觉大模型接口 (兼容 OpenAI 模式)
+    const response = await fetch('https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${apiKey}` 
+      },
       body: bodyText 
     });
 
@@ -28,7 +31,7 @@ export async function onRequestPost(context) {
     try {
         data = JSON.parse(rawText);
     } catch(e) {
-        return new Response(JSON.stringify({ error: `Google API 返回了异常内容: ${rawText}` }), {
+        return new Response(JSON.stringify({ error: `通义千问 API 返回异常内容: ${rawText}` }), {
           status: response.status,
           headers: { 'Content-Type': 'application/json' }
         });
