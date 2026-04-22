@@ -576,7 +576,13 @@ function toggleCamera(){
 }
 function startPracticeCamera() {
   if(camStream){ camStream.getTracks().forEach(t=>t.stop()); camStream=null; }
-  navigator.mediaDevices.getUserMedia({video:{facingMode: practiceFacingMode}})
+  
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+    alert('无法调用摄像头。请确保在 HTTPS (安全链接) 环境下打开，或者检查浏览器权限。');
+    return;
+  }
+
+  navigator.mediaDevices.getUserMedia({video:{facingMode: { ideal: practiceFacingMode }}})
     .then(s=>{ 
       camOn=true; camStream=s; window.refreshPractice(); 
       setTimeout(()=>{ 
@@ -587,7 +593,9 @@ function startPracticeCamera() {
           v.style.transform = practiceFacingMode==='user'?'scaleX(-1)':'none'; 
         } 
       },60); 
-    }).catch(()=>alert('无法访问摄像头。'));
+    }).catch((err)=>{
+      alert('无法访问摄像头: ' + err.message + '。请在手机设置中允许浏览器使用摄像头权限。');
+    });
 }
 function switchPracticeCamera() {
   practiceFacingMode = practiceFacingMode === 'user' ? 'environment' : 'user';
@@ -1081,6 +1089,14 @@ function openAnalyzer(){
 }
 function startAnalyzerCamera() {
   if(analyzerStream){ analyzerStream.getTracks().forEach(t=>t.stop()); analyzerStream=null; }
+  
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+    analyzerState='error'; 
+    analyzerResult='无法调用摄像头。请确保在 HTTPS (安全链接) 环境下打开，或者检查浏览器权限。'; 
+    window.refreshPractice();
+    return;
+  }
+
   setTimeout(()=>{
     const v = document.getElementById('analyzer-video'); if(!v) return;
     navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: analyzerFacingMode } } })
@@ -1089,7 +1105,11 @@ function startAnalyzerCamera() {
         // 只有切到前置时才翻转画面，后置拍谱必须正向显示
         v.style.transform = analyzerFacingMode === 'user' ? 'scaleX(-1)' : 'none';
       })
-      .catch(()=>{ analyzerState='error'; analyzerResult='无法访问摄像头，请检查权限。'; window.refreshPractice(); });
+      .catch((err)=>{ 
+        analyzerState='error'; 
+        analyzerResult='无法访问摄像头: ' + err.message + '。请在手机设置中允许浏览器使用摄像头。'; 
+        window.refreshPractice(); 
+      });
   }, 80);
 }
 function switchAnalyzerCamera() {
